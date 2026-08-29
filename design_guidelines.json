@@ -1,0 +1,217 @@
+{
+  "theme": "dark",
+  "colors": {
+    "surfaces": [
+      {
+        "name": "page",
+        "kind": "solid",
+        "bg": "#0D0B0A",
+        "on_bg": "#F5EFEB",
+        "on_bg_muted": "#B5A9A1",
+        "roles": {
+          "link": "#F59E0B",
+          "error": "#EF4444",
+          "success": "#10B981",
+          "warning": "#F59E0B"
+        }
+      },
+      {
+        "name": "panel",
+        "kind": "solid",
+        "bg": "#1A1614",
+        "on_bg": "#F5EFEB",
+        "on_bg_muted": "#A89C94",
+        "roles": {
+          "border": "#2E2622",
+          "link": "#F59E0B"
+        }
+      },
+      {
+        "name": "card_elevated",
+        "kind": "solid",
+        "bg": "#241E1A",
+        "on_bg": "#FAF6F3",
+        "on_bg_muted": "#BCB1A8",
+        "roles": {
+          "border": "#3D322C",
+          "badge_bg": "#D97706",
+          "badge_text": "#1A1005"
+        }
+      },
+      {
+        "name": "inverse",
+        "kind": "solid",
+        "bg": "#FAF6F3",
+        "on_bg": "#1A1614",
+        "on_bg_muted": "#5C524B"
+      },
+      {
+        "name": "hero",
+        "kind": "image",
+        "contrast_against": "#140F0C",
+        "guarantee": "scrim: linear-gradient(180deg, rgba(13,11,10,0.85) 0%, rgba(13,11,10,0.65) 50%, rgba(13,11,10,0.95) 100%)",
+        "on_bg": "#FAF6F3",
+        "on_bg_muted": "#D6CBC3",
+        "roles": {
+          "link": "#FBBF24",
+          "accent_badge": "#EA580C"
+        }
+      },
+      {
+        "name": "gold_badge",
+        "kind": "solid",
+        "bg": "#F59E0B",
+        "on_bg": "#1A1202",
+        "on_bg_muted": "#3D2B05"
+      },
+      {
+        "name": "island_green_badge",
+        "kind": "solid",
+        "bg": "#059669",
+        "on_bg": "#FFFFFF",
+        "on_bg_muted": "#D1FAE5"
+      },
+      {
+        "name": "status_ready",
+        "kind": "solid",
+        "bg": "#10B981",
+        "on_bg": "#022C22",
+        "on_bg_muted": "#064E3B"
+      },
+      {
+        "name": "status_preparing",
+        "kind": "solid",
+        "bg": "#F59E0B",
+        "on_bg": "#1E1303",
+        "on_bg_muted": "#451A03"
+      },
+      {
+        "name": "status_received",
+        "kind": "solid",
+        "bg": "#6366F1",
+        "on_bg": "#FFFFFF",
+        "on_bg_muted": "#E0E7FF"
+      }
+    ],
+    "accent": "#EA580C",
+    "on_accent": "#FFFFFF",
+    "palette_tokens": {
+      "jerk_ember": "#EA580C",
+      "island_gold": "#F59E0B",
+      "caribbean_green": "#10B981",
+      "tropical_red": "#DC2626",
+      "charcoal_base": "#0D0B0A",
+      "warm_card": "#1A1614",
+      "warm_border": "#2E2622"
+    }
+  },
+  "typography": {
+    "heading_font": "Playfair Display Variable",
+    "body_font": "DM Sans Variable",
+    "mono_font": "JetBrains Mono Variable",
+    "css_import": "@import \"@fontsource-variable/playfair-display\";\n@import \"@fontsource-variable/dm-sans\";\n@import \"@fontsource-variable/jetbrains-mono\";",
+    "scale_px": {
+      "display": 56,
+      "h1": 42,
+      "h2": 32,
+      "h3": 24,
+      "h4": 20,
+      "body": 16,
+      "caption": 14
+    },
+    "rules": {
+      "hero_title": "font-serif text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#FAF6F3]",
+      "section_title": "font-serif text-2xl sm:text-3xl font-bold text-[#F5EFEB] tracking-tight",
+      "card_title": "font-serif text-lg sm:text-xl font-semibold text-[#FAF6F3]",
+      "category_pill": "font-sans uppercase text-xs font-semibold tracking-wider",
+      "price_tag": "font-mono font-bold text-base sm:text-lg text-[#F59E0B]",
+      "order_number": "font-mono text-2xl sm:text-3xl font-extrabold tracking-widest text-[#F59E0B]"
+    }
+  },
+  "entry_surfaces": {
+    "/": "split hero with table QR landing prompt, quick menu preview left, animated live vibe & specials ribbon right",
+    "/menu": "mobile-optimized sticky table header + interactive category pill strip + responsive food card grid + bottom cart drawer trigger",
+    "/table/:tableId": "table-locked dine-in menu hero with detected table badge, full menu category filter, and bottom sticky quick-order bar",
+    "/status/:orderId": "delightful live order tracking card with animated step progression (Received -> Cooking -> Ready), QR claim receipt, sound chime toggle, and auto-polling",
+    "/staff": "dense command-center kitchen & bar board with high-contrast status columns, sound alerts, instant status advance buttons, and audio chime",
+    "/staff/tables": "visual table layout & QR generator grid with 1-click printable & downloadable QR cards"
+  },
+  "image_urls": {
+    "hero_dish": {
+      "url": "https://images.unsplash.com/photo-1632852576480-c10a8e19496a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODl8MHwxfHNlYXJjaHwyfHxqZXJrJTIwY2hpY2tlbiUyMGNhcmliYmVhbiUyMGZvb2QlMjBwbGF0ZXxlbnwwfHx8fDE3ODgwMjIyNjJ8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Authentic Jamaican Jerk Chicken Platter with rice, peas and plantains",
+      "category": "Hero Banner & Jerk Chicken entree item"
+    },
+    "jerk_chicken": {
+      "url": "https://images.unsplash.com/photo-1610057098265-05f2bcbedd55?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODl8MHwxfHNlYXJjaHwxfHxqZXJrJTIwY2hpY2tlbiUyMGNhcmliYmVhbiUyMGZvb2QlMjBwbGF0ZXxlbnwwfHx8fDE3ODgwMjIyNjJ8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Signature spice-rubbed grilled Jerk Chicken",
+      "category": "Entrees / Grill"
+    },
+    "rum_punch": {
+      "url": "https://images.unsplash.com/photo-1625321643320-5321f48312b2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1NzZ8MHwxfHNlYXJjaHwyfHx0cm9waWNhbCUyMHJ1bSUyMHB1bmNoJTIwY29ja3RhaWwlMjBiYXJ8ZW58MHx8fHwxNzg4MDIyMjYyfDA&ixlib=rb-4.1.0&q=85",
+      "description": "Tropical Island Rum Punch with Wray & Nephew and citrus garnish",
+      "category": "Signatures / Cocktails"
+    },
+    "cocktail_pair": {
+      "url": "https://images.unsplash.com/photo-1598994392980-53a7fb033bcc?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1NzZ8MHwxfHNlYXJjaHwxfHx0cm9waWNhbCUyMHJ1bSUyMHB1bmNoJTIwY29ja3RhaWwlMjBiYXJ8ZW58MHx8fHwxNzg4MDIyMjYyfDA&ixlib=rb-4.1.0&q=85",
+      "description": "Mango and Passionfruit Daiquiri pair on dark wooden bar counter",
+      "category": "Island Blends & Nightlife Vibe"
+    },
+    "fried_plantains": {
+      "url": "https://images.unsplash.com/photo-1762884601729-0eeeafbdfb8a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzF8MHwxfHNlYXJjaHwxfHxmcmllZCUyMHBsYW50YWlucyUyMHNlYWZvb2QlMjBjYXJpYmJlYW58ZW58MHx8fHwxNzg4MDIyMjYyfDA&ixlib=rb-4.1.0&q=85",
+      "description": "Crispy golden Caribbean fried plantains",
+      "category": "Sides & Appetizers"
+    }
+  },
+  "restaurant_identity": {
+    "brand_name": "Central Bar & Grill",
+    "est": "Established 2006 • Toronto, ON (2007 Lawrence Ave W)",
+    "tagline": "Bold Caribbean Flavours, Sizzling Jerk & Island Nightlife",
+    "special_events": [
+      { "day": "Wednesdays", "title": "Karaoke Night", "desc": "Sing your heart out, 8pm till late" },
+      { "day": "Thursdays", "title": "Seafood & Ladies Night", "desc": "Garlic Butter Crab & Lobster specials" },
+      { "day": "Sundays", "title": "Oldies Sundays", "desc": "Classic Reggae, Lovers Rock & Soul Vibes" }
+    ],
+    "vibe_quote": "Grown, warm & vibrant — where authentic Jamaican home cooking meets electric island hospitality."
+  },
+  "layouts": {
+    "grid_modes": {
+      "customer_menu": "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6",
+      "kitchen_kanban": "grid grid-cols-1 md:grid-cols-3 gap-6",
+      "table_qr_grid": "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+    },
+    "spacing_scale": {
+      "section_padding": "py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8",
+      "card_padding": "p-4 sm:p-6",
+      "bottom_bar_offset": "pb-28 sm:pb-24"
+    }
+  },
+  "motion": {
+    "engine": "motion/react (bundled)",
+    "transitions": {
+      "card_hover": "transition-transform duration-200 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-amber-950/20",
+      "status_pulse": "animate-pulse duration-1000",
+      "badge_pop": "scale-105 transition-transform duration-150"
+    },
+    "notification_chime": "Web Audio API synth chime on status change to 'Ready' and on new order received in staff dashboard"
+  },
+  "accessibility": {
+    "contrast_standard": "WCAG AA (4.5:1 minimum on all body copy and interactive badges)",
+    "reduced_motion": "Respect prefers-reduced-motion with motion-reduce:transition-none",
+    "data_testid_convention": "All interactive and informational elements MUST have descriptive kebab-case data-testid attributes (e.g. data-testid='table-qr-scan-input', data-testid='menu-add-to-cart-jerk-chicken', data-testid='order-status-badge', data-testid='staff-advance-status-button')"
+  },
+  "instructions_to_main_agent": [
+    "Follow Central Bar and Grill's authentic Toronto Jamaican aesthetic: Deep obsidian charcoal base (#0D0B0A), warm ember accents (#EA580C), golden amber highlights (#F59E0B), and lush Caribbean green touches (#10B981).",
+    "Customer Ordering Flow: 1) Scan QR or select Table Number (1-20), 2) Browse rich categories: Appetizers, Entrees, Seafood, Seafood Thursday, Your Combo, Sides, Signatures, Island Blends, 3) Select pairing options (e.g. Rice & Peas vs White Rice, Spice Level, Side festival), 4) Place order with optional customer name & phone for SMS/text simulation, 5) Live auto-updating Order Status page with 3-step tracker (Received -> Preparing -> Ready) + generated Order Claim QR code + Web Audio bell chime on Ready.",
+    "Staff / Kitchen Dashboard Flow (/staff): Live kanban board grouped into 'New / Received', 'Preparing / Kitchen', 'Ready for Pickup / Table Delivery'. Real-time 1-click status advancement buttons, sound chime on incoming orders, audio bell on ready. Include filter by table, time elapsed timer, and quick search.",
+    "Table QR Code Generator & Receipt Claim: Dedicated /staff/tables page generating QR codes for Tables 1 to 16 with instant SVG QR rendering, printable table tent cards, and direct scan preview buttons. Every receipt on the customer status page displays a scannable Order Claim QR Code.",
+    "Include pre-seeded realistic menu items from Central Bar and Grill (Jerk Chicken, Curry Goat, Oxtail, Rasta Pasta, Bang Bang Shrimp, Garlic Butter Seafood, Rum Punch, Fried Plantains, Festivals, Bammy).",
+    "Implement Web Audio API synth chimes for audio alerts when orders change status (zero external audio asset dependencies)."
+  ],
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "Never use generic centered layouts or full-screen flat gradients. Use deep warm obsidian tones with subtle borders and glowing accents.",
+    "Every interactive button, input, tab, and card must include explicit data-testid attributes for automated testing.",
+    "Use Shadcn Sheet for cart drawer, Shadcn Dialog for item customizer & QR preview, and Sonner for toast notifications.",
+    "Avoid generic 'AI slop' aesthetics. Deliver rich cultural authenticity reflecting Central Bar & Grill's 2006 Jamaican roots."
+  ]
+}
