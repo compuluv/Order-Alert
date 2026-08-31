@@ -32,7 +32,8 @@ class OrderLine(BaseModel):
 
 
 class OrderCreate(BaseModel):
-    table_number: int
+    order_type: str = "dine_in"  # dine_in | takeout
+    table_number: Optional[int] = None
     customer_name: str
     phone: Optional[str] = None
     notes: Optional[str] = None
@@ -42,7 +43,8 @@ class OrderCreate(BaseModel):
 class Order(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     code: str
-    table_number: int
+    order_type: str = "dine_in"
+    table_number: Optional[int] = None
     customer_name: str
     phone: Optional[str] = None
     notes: Optional[str] = None

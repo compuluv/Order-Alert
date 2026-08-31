@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { QrCode, ChefHat, ArrowRight, Music, Fish, Disc3 } from "lucide-react";
+import { QrCode, ChefHat, ArrowRight, Music, Fish, Disc3, ShoppingBag } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,6 +64,13 @@ export default function Home() {
                 <QrCode className="size-4" /> Start an order
               </Link>
               <Link
+                to="/takeout"
+                className={`${buttonVariants({ size: "lg" })} !bg-[#059669] hover:!bg-[#047857]`}
+                data-testid="hero-takeout-button"
+              >
+                <ShoppingBag className="size-4" /> Takeout / Pickup
+              </Link>
+              <Link
                 to="/staff/tables"
                 className={buttonVariants({ variant: "outline", size: "lg" })}
                 data-testid="hero-table-qr-link"
@@ -87,6 +94,17 @@ export default function Home() {
                   {t}
                 </Link>
               ))}
+            </div>
+
+            <div className="mt-6 border-t border-[#2E2622] pt-5">
+              <p className="text-sm text-[#D6CBC3]">Not eating in?</p>
+              <Link
+                to="/takeout"
+                className={`${buttonVariants({ variant: "outline" })} mt-2 w-full !border-[#10B981] !text-[#10B981] hover:!bg-[#059669] hover:!text-white`}
+                data-testid="home-takeout-link"
+              >
+                <ShoppingBag className="size-4" /> Order takeout for pickup
+              </Link>
             </div>
 
             <div className="mt-6 border-t border-[#2E2622] pt-5">

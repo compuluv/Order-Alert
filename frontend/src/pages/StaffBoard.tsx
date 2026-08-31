@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, BellOff, QrCode, Search, Timer, Loader2 } from "lucide-react";
+import { Bell, BellOff, QrCode, Search, Timer, Loader2, Lock } from "lucide-react";
 import { toast } from "sonner";
 import SiteHeader from "@/components/SiteHeader";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { apiGet, apiPatch } from "@/lib/api";
 import {
   STATUS_LABEL,
+  STAFF_PIN_KEY,
   elapsed,
   money,
   playChime,
@@ -95,6 +96,17 @@ export default function StaffBoard() {
             >
               <QrCode className="size-4" /> Table QRs
             </Link>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                localStorage.removeItem(STAFF_PIN_KEY);
+                window.location.reload();
+              }}
+              data-testid="staff-lock-button"
+            >
+              <Lock className="size-4" /> Lock
+            </Button>
           </>
         }
       />
@@ -170,7 +182,9 @@ export default function StaffBoard() {
                         <span className="font-mono text-lg font-extrabold tracking-wider text-[#F59E0B]">
                           {o.code}
                         </span>
-                        <Badge className="bg-[#EA580C] text-white">T{o.table_number}</Badge>
+                        <Badge className="bg-[#EA580C] text-white">
+                          {o.order_type === "takeout" ? "TAKEOUT" : `T${o.table_number}`}
+                        </Badge>
                         <span className="ml-auto flex items-center gap-1 font-mono text-xs text-[#A89C94]">
                           <Timer className="size-3" /> {elapsed(o.created_at)}
                         </span>

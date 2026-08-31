@@ -18,10 +18,13 @@ export interface OrderLine {
   option: string | null;
 }
 
+export type OrderType = "dine_in" | "takeout";
+
 export interface Order {
   id: string;
   code: string;
-  table_number: number;
+  order_type: OrderType;
+  table_number: number | null;
   customer_name: string;
   phone: string | null;
   notes: string | null;
@@ -80,6 +83,38 @@ export function playChime(kind: "ready" | "new" = "ready") {
     /* audio unavailable — silent */
   }
 }
+
+/**
+ * "Phone rings" for takeout guests waiting elsewhere: a repeating chime plus a
+ * vibration burst and a browser notification, so it grabs attention like a call.
+ */
+export function ringPhone(title: string, body: string) {
+  for (let i = 0; i < 4; i++) setTimeout(() => playChime("ready"), i * 900);
+  try {
+    navigator.vibrate?.([400, 200, 400, 200, 700]);
+  } catch {
+    /* no vibration support */
+  }
+  try {
+    if ("Notification" in window && Notification.permission === "granted") {
+      new Notification(title, { body });
+    }
+  } catch {
+    /* notifications unavailable */
+  }
+}
+
+export function askNotificationPermission() {
+  try {
+    if ("Notification" in window && Notification.permission === "default") {
+      void Notification.requestPermission();
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
+export const STAFF_PIN_KEY = "cbg_staff_unlocked";
 
 export function elapsed(iso: string): string {
   const mins = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60000));

@@ -10,9 +10,11 @@ import { apiGet } from "@/lib/api";
 import {
   STATUS_COLOR,
   STATUS_LABEL,
+  askNotificationPermission,
   money,
   playChime,
   qrSrc,
+  ringPhone,
   type Order,
   type OrderStatus,
 } from "@/lib/dining";
@@ -37,12 +39,29 @@ export default function OrderStatus() {
   });
 
   useEffect(() => {
+    askNotificationPermission();
+  }, []);
+
+  useEffect(() => {
     if (!order) return;
     if (lastStatus.current && lastStatus.current !== order.status) {
       if (order.status === "ready") {
-        if (sound) playChime("ready");
-        toast.success("Your order is ready!", {
-          description: `Order ${order.code} — Table ${order.table_number}`,
+        const takeout = order.order_type === "takeout";
+        if (sound) {
+          if (takeout) {
+            ringPhone(
+              "Your takeout is ready!",
+              `Order ${order.code} — come collect it at the counter.`,
+            );
+          } else {
+            playChime("ready");
+          }
+        }
+        toast.success(takeout ? "Your takeout is ready — head back!" : "Your order is ready!", {
+          description: takeout
+            ? `Order ${order.code} — collect at the counter`
+            : `Order ${order.code} — Table ${order.table_number}`,
+          duration: 12000,
         });
       } else {
         toast.info(STATUS_LABEL[order.status]);
@@ -101,6 +120,20 @@ export default function OrderStatus() {
           </p>
         )}
 
+        {order && order.order_type === "takeout" && order.status === "ready" && (
+          <div
+            className="mt-6 animate-chime rounded-2xl border-2 border-[#10B981] bg-[#10B981] p-6 text-center"
+            data-testid="takeout-ready-banner"
+          >
+            <p className="font-serif text-2xl font-bold text-[#022C22] sm:text-3xl">
+              Come to the counter — your food is bagged!
+            </p>
+            <p className="mt-1 font-mono text-sm font-semibold text-[#064E3B]">
+              Order {order.code} · show your claim QR
+            </p>
+          </div>
+        )}
+
         {order && (
           <div className="mt-6 grid gap-6 lg:grid-cols-[1.3fr_1fr]">
             <div className="animate-rise rounded-2xl border border-[#3D322C] bg-[#1A1614] p-5 sm:p-6">
@@ -117,8 +150,14 @@ export default function OrderStatus() {
                 >
                   {STATUS_LABEL[order.status]}
                 </Badge>
-                <Badge variant="outline" data-testid="order-table-badge">
-                  Table {order.table_number}
+                <Badge
+                  variant="outline"
+                  className={order.order_type === "takeout" ? "border-[#10B981] text-[#10B981]" : ""}
+                  data-testid="order-table-badge"
+                >
+                  {order.order_type === "takeout"
+                    ? "Takeout · Pickup"
+                    : `Table ${order.table_number}`}
                 </Badge>
               </div>
               <p className="mt-2 text-sm text-[#A89C94]" data-testid="order-customer-name">

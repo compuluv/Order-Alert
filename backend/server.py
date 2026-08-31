@@ -60,9 +60,11 @@ async def get_status_checks():
 
 from routers.menu import router as menu_router
 from routers.orders import router as orders_router
+from routers.staff import router as staff_router
 
 api_router.include_router(menu_router, tags=["menu"])
 api_router.include_router(orders_router, tags=["orders"])
+api_router.include_router(staff_router, tags=["staff"])
 
 # Include the router in the main app
 app.include_router(api_router)

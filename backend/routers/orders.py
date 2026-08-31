@@ -34,8 +34,15 @@ async def _new_code() -> str:
 async def create_order(payload: OrderCreate):
     if not payload.lines:
         raise HTTPException(status_code=400, detail="Order must contain at least one item")
-    if payload.table_number < 1 or payload.table_number > 16:
-        raise HTTPException(status_code=400, detail="Table number must be between 1 and 16")
+    if payload.order_type not in ("dine_in", "takeout"):
+        raise HTTPException(status_code=400, detail="order_type must be dine_in or takeout")
+    if payload.order_type == "dine_in":
+        if payload.table_number is None or payload.table_number < 1 or payload.table_number > 16:
+            raise HTTPException(status_code=400, detail="Table number must be between 1 and 16")
+    else:
+        payload.table_number = None
+        if not (payload.phone or "").strip():
+            raise HTTPException(status_code=400, detail="A phone number is required for takeout orders")
     total = round(sum(line.price * line.qty for line in payload.lines), 2)
     order = Order(code=await _new_code(), total=total, **payload.model_dump())
     await db.orders.insert_one(order.model_dump())

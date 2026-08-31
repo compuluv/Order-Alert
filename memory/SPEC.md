@@ -30,4 +30,16 @@ Restaurant QR ordering app themed on centralbarandgrill.ca (Toronto Jamaican bar
 Appetizers, Entrees, Seafood, Sides, Signatures, Island Blends.
 
 ## Auth
-None — staff board is an open link per the user's choice.
+Staff pages (`/staff`, `/staff/tables`) are gated by a shared PIN (`STAFF_PIN` in backend/.env,
+default `2006`) verified at `POST /api/staff/verify-pin`. On success the frontend stores
+`localStorage["cbg_staff_unlocked"]="1"` so the device is remembered; a "Lock" button clears it.
+A small "Staff" button remains on the landing page but leads to the PIN gate.
+
+## Order types
+- `dine_in` — requires `table_number` 1–16 (entered via table QR / table picker).
+- `takeout` — no table; **phone is required** (backend 400s without it) so the guest can be rung.
+  Landing page has a "Takeout / Pickup" button → `/takeout`. When a takeout order flips to `ready`
+  the tracker fires `ringPhone()` (repeating chime + `navigator.vibrate` + browser Notification),
+  shows a full-width green "Come to the counter" banner, and a long-duration toast.
+  Staff tickets show a `TAKEOUT` badge instead of a table number.
+
