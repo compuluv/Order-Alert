@@ -53,3 +53,36 @@ class Order(BaseModel):
 
 class StatusUpdate(BaseModel):
     status: str
+
+
+class WaitEstimate(BaseModel):
+    minutes: int
+    queue_size: int
+    busy_level: str  # quiet | steady | busy | slammed
+    message: str
+
+
+class TopItem(BaseModel):
+    name: str
+    qty: int
+    revenue: float
+
+
+class HourBucket(BaseModel):
+    hour: str
+    orders: int
+    revenue: float
+
+
+class DailyReport(BaseModel):
+    date: str
+    timezone: str
+    order_count: int
+    revenue: float
+    items_sold: int
+    average_order: float
+    collected_count: int
+    outstanding_count: int
+    top_items: List[TopItem]
+    by_category: List[TopItem]
+    by_hour: List[HourBucket]

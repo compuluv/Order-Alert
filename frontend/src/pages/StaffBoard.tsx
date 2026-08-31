@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, BellOff, QrCode, Search, Timer, Loader2, Lock, Tv, MessageSquare } from "lucide-react";
+import { Bell, BellOff, QrCode, Search, Timer, Loader2, Lock, Tv, MessageSquare, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 import SiteHeader from "@/components/SiteHeader";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -91,6 +91,13 @@ export default function StaffBoard() {
               {sound ? <Bell className="size-4" /> : <BellOff className="size-4" />}
               Alerts
             </Button>
+            <Link
+              to="/staff/report"
+              className={buttonVariants({ variant: "secondary", size: "sm" })}
+              data-testid="staff-report-link"
+            >
+              <BarChart3 className="size-4" /> Sales
+            </Link>
             <Link
               to="/counter"
               target="_blank"

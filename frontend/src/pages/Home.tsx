@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ChefHat, Music, Fish, Disc3, ShoppingBag, BellRing, CreditCard, ScanLine } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
+import WaitBanner from "@/components/WaitBanner";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -57,6 +58,10 @@ export default function Home() {
               anywhere. When it&apos;s plated, your screen flashes and sounds a loud alarm — then
               come to the counter to pay and pick it up.
             </p>
+            <div className="mt-6 max-w-xl">
+              <WaitBanner />
+            </div>
+
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 to="/order"

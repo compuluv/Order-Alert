@@ -2,6 +2,21 @@
 
 Restaurant QR ordering app themed on centralbarandgrill.ca (Toronto Jamaican bar & grill, est. 2006).
 
+## Live wait estimate — `GET /api/wait-estimate`
+Computed from the current kitchen queue (`received` + `preparing` counts):
+`BASE_MINUTES(9) + 3 * ceil(queue / 2)`, capped at 45 and rounded to the nearest 5 so it reads like
+a human estimate. Returns `{minutes, queue_size, busy_level, message}` where `busy_level` is
+`quiet | steady | busy | slammed` (0 / ≤3 / ≤8 / more tickets).
+Rendered by `components/WaitBanner.tsx` (polls every 20s) on the landing page, above the menu
+(before they order) and on the tracker while the order isn't ready yet.
+
+## Daily sales report — `GET /api/reports/daily?date=YYYY-MM-DD`
+Staff-gated page at `/staff/report` ("Sales" button on the board), polls every 30s, with a date
+picker and Print button. The day is a **local calendar day** anchored server-side via
+`lib/dates.py::today_iso()` + `APP_TZ` (set to `America/Toronto` in backend/.env) — never browser
+date math. Returns order_count, revenue, items_sold, average_order, collected vs outstanding,
+`top_items` (best sellers, top 8), `by_category`, and `by_hour` buckets.
+
 ## Counter TV display — `/counter` (ungated, meant to be left running on a TV)
 Polls every 4s. Big **NOW READY** grid of order codes + guest names (stays up until staff mark the
 order collected/served), with a smaller **Still cooking** column showing received/preparing tickets

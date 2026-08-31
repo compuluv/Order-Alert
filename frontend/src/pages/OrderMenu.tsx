@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import { apiGet, apiPost } from "@/lib/api";
 import { unlockAudio } from "@/lib/alarm";
+import WaitBanner from "@/components/WaitBanner";
 import { money, type MenuItem, type Order, type OrderLine } from "@/lib/dining";
 
 interface CartLine extends OrderLine {
@@ -132,6 +133,10 @@ export default function OrderMenu() {
           Sit anywhere you like. When your food&apos;s up, this screen flashes and sounds a loud
           alarm — then head to the counter to pay and collect.
         </p>
+
+        <div className="mt-5 max-w-2xl">
+          <WaitBanner />
+        </div>
 
         <div
           className="sticky top-[61px] z-30 -mx-4 mt-6 flex gap-2 overflow-x-auto bg-[#0D0B0A]/90 px-4 py-3 backdrop-blur-md sm:-mx-6 sm:px-6"

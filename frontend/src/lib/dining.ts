@@ -33,6 +33,47 @@ export interface Order {
 
 export type OrderStatus = "received" | "preparing" | "ready" | "served";
 
+// Mirrors WaitEstimate / DailyReport in backend/models/dining.py
+export interface WaitEstimate {
+  minutes: number;
+  queue_size: number;
+  busy_level: "quiet" | "steady" | "busy" | "slammed";
+  message: string;
+}
+
+export interface TopItem {
+  name: string;
+  qty: number;
+  revenue: number;
+}
+
+export interface HourBucket {
+  hour: string;
+  orders: number;
+  revenue: number;
+}
+
+export interface DailyReport {
+  date: string;
+  timezone: string;
+  order_count: number;
+  revenue: number;
+  items_sold: number;
+  average_order: number;
+  collected_count: number;
+  outstanding_count: number;
+  top_items: TopItem[];
+  by_category: TopItem[];
+  by_hour: HourBucket[];
+}
+
+export const BUSY_STYLE: Record<WaitEstimate["busy_level"], string> = {
+  quiet: "border-[#10B981] text-[#10B981]",
+  steady: "border-[#F59E0B] text-[#F59E0B]",
+  busy: "border-[#EA580C] text-[#EA580C]",
+  slammed: "border-[#EF4444] text-[#EF4444]",
+};
+
 export const STATUS_FLOW: OrderStatus[] = ["received", "preparing", "ready", "served"];
 
 export const STATUS_LABEL: Record<OrderStatus, string> = {
@@ -50,7 +91,6 @@ export const STATUS_COLOR: Record<OrderStatus, string> = {
 };
 
 export const money = (n: number) => `$${n.toFixed(2)}`;
-
 export const qrSrc = (data: string) => `/api/qr?data=${encodeURIComponent(data)}`;
 
 /**

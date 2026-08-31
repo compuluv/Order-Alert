@@ -7,6 +7,7 @@ import OrderStatus from "@/pages/OrderStatus";
 import StaffBoard from "@/pages/StaffBoard";
 import StaffQr from "@/pages/StaffQr";
 import CounterDisplay from "@/pages/CounterDisplay";
+import StaffReport from "@/pages/StaffReport";
 
 // One <Route> per page in src/pages; BrowserRouter already wraps this in main.tsx.
 export default function App() {
@@ -38,6 +39,14 @@ export default function App() {
           }
         />
         <Route path="/staff/tables" element={<Navigate to="/staff/qr" replace />} />
+        <Route
+          path="/staff/report"
+          element={
+            <StaffGate>
+              <StaffReport />
+            </StaffGate>
+          }
+        />
       </Routes>
       <Toaster position="top-center" richColors />
     </>

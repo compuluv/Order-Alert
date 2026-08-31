@@ -5,6 +5,7 @@ import { Check, Bell, BellOff, CookingPot, Receipt, Loader2, ArrowLeft } from "l
 import { toast } from "sonner";
 import SiteHeader from "@/components/SiteHeader";
 import PickupAlert from "@/components/PickupAlert";
+import WaitBanner from "@/components/WaitBanner";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { apiGet } from "@/lib/api";
@@ -132,6 +133,12 @@ export default function OrderStatus() {
             total={order.total}
             onDismiss={() => setAlertOpen(false)}
           />
+        )}
+
+        {order && order.status !== "ready" && (
+          <div className="mt-6" data-testid="tracker-wait-banner">
+            <WaitBanner compact />
+          </div>
         )}
 
         {order && order.status !== "ready" && !armed && (
