@@ -1,11 +1,11 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 import StaffGate from "@/components/StaffGate";
 import Home from "@/pages/Home";
-import TableMenu from "@/pages/TableMenu";
+import OrderMenu from "@/pages/OrderMenu";
 import OrderStatus from "@/pages/OrderStatus";
 import StaffBoard from "@/pages/StaffBoard";
-import StaffTables from "@/pages/StaffTables";
+import StaffQr from "@/pages/StaffQr";
 
 // One <Route> per page in src/pages; BrowserRouter already wraps this in main.tsx.
 export default function App() {
@@ -13,8 +13,10 @@ export default function App() {
     <>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/table/:tableId" element={<TableMenu />} />
-        <Route path="/takeout" element={<TableMenu />} />
+        <Route path="/order" element={<OrderMenu />} />
+        {/* Legacy table/takeout links (already-printed QRs) now land on the single menu. */}
+        <Route path="/table/:tableId" element={<Navigate to="/order" replace />} />
+        <Route path="/takeout" element={<Navigate to="/order" replace />} />
         <Route path="/status/:orderId" element={<OrderStatus />} />
         <Route
           path="/staff"
@@ -25,13 +27,14 @@ export default function App() {
           }
         />
         <Route
-          path="/staff/tables"
+          path="/staff/qr"
           element={
             <StaffGate>
-              <StaffTables />
+              <StaffQr />
             </StaffGate>
           }
         />
+        <Route path="/staff/tables" element={<Navigate to="/staff/qr" replace />} />
       </Routes>
       <Toaster position="top-center" richColors />
     </>

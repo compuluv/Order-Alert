@@ -187,14 +187,8 @@ export default function OrderStatus() {
                 >
                   {STATUS_LABEL[order.status]}
                 </Badge>
-                <Badge
-                  variant="outline"
-                  className={order.order_type === "takeout" ? "border-[#10B981] text-[#10B981]" : ""}
-                  data-testid="order-table-badge"
-                >
-                  {order.order_type === "takeout"
-                    ? "Takeout · Pickup"
-                    : `Table ${order.table_number}`}
+                <Badge variant="outline" data-testid="order-pickup-badge">
+                  Pay &amp; collect at counter
                 </Badge>
               </div>
               <p className="mt-2 text-sm text-[#A89C94]" data-testid="order-customer-name">

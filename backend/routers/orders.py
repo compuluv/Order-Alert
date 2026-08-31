@@ -1,7 +1,7 @@
 import io
 import random
 from datetime import datetime, timezone
-from typing import List, Optional
+from typing import List
 
 import qrcode
 import qrcode.image.svg
@@ -34,15 +34,8 @@ async def _new_code() -> str:
 async def create_order(payload: OrderCreate):
     if not payload.lines:
         raise HTTPException(status_code=400, detail="Order must contain at least one item")
-    if payload.order_type not in ("dine_in", "takeout"):
-        raise HTTPException(status_code=400, detail="order_type must be dine_in or takeout")
-    if payload.order_type == "dine_in":
-        if payload.table_number is None or payload.table_number < 1 or payload.table_number > 16:
-            raise HTTPException(status_code=400, detail="Table number must be between 1 and 16")
-    else:
-        payload.table_number = None
-        if not (payload.phone or "").strip():
-            raise HTTPException(status_code=400, detail="A phone number is required for takeout orders")
+    if not payload.customer_name.strip():
+        raise HTTPException(status_code=400, detail="A name is required so we can call the order")
     total = round(sum(line.price * line.qty for line in payload.lines), 2)
     order = Order(code=await _new_code(), total=total, **payload.model_dump())
     await db.orders.insert_one(order.model_dump())
@@ -50,11 +43,8 @@ async def create_order(payload: OrderCreate):
 
 
 @router.get("/orders", response_model=List[Order])
-async def list_orders(table: Optional[int] = Query(default=None)):
-    q: dict = {}
-    if table is not None:
-        q["table_number"] = table
-    docs = await db.orders.find(q).sort("created_at", -1).to_list(300)
+async def list_orders():
+    docs = await db.orders.find({}).sort("created_at", -1).to_list(300)
     return [Order(**_aware(d)) for d in docs]
 
 

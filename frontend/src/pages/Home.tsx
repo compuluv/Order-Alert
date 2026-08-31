@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { QrCode, ChefHat, ArrowRight, Music, Fish, Disc3, ShoppingBag } from "lucide-react";
+import { ChefHat, Music, Fish, Disc3, ShoppingBag, BellRing, CreditCard, ScanLine } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { TABLES } from "@/lib/dining";
 
 const HERO =
   "https://images.unsplash.com/photo-1632852576480-c10a8e19496a?crop=entropy&cs=srgb&fm=jpg&w=1200&q=80";
@@ -15,6 +14,12 @@ const NIGHTS = [
   { icon: Music, day: "Wednesdays", title: "Karaoke Night", desc: "Sing your heart out, 8pm till late" },
   { icon: Fish, day: "Thursdays", title: "Seafood & Ladies Night", desc: "Garlic butter crab & lobster specials" },
   { icon: Disc3, day: "Sundays", title: "Oldies Sundays", desc: "Reggae, lovers rock & soul vibes" },
+];
+
+const STEPS = [
+  { icon: ScanLine, title: "Order on your phone", desc: "Scan the poster or tap below — sit wherever you like." },
+  { icon: BellRing, title: "We alert you, loudly", desc: "Your screen flashes and sounds an alarm when it's up." },
+  { icon: CreditCard, title: "Pay & collect", desc: "Head to the counter, pay, grab your food. Done." },
 ];
 
 export default function Home() {
@@ -36,81 +41,52 @@ export default function Home() {
       />
 
       <section className="relative overflow-hidden border-b border-[#2E2622]">
-        <img
-          src={HERO}
-          alt="Jerk chicken platter"
-          className="absolute inset-0 size-full object-cover"
-        />
+        <img src={HERO} alt="Jerk chicken platter" className="absolute inset-0 size-full object-cover" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(13,11,10,0.86)_0%,rgba(13,11,10,0.72)_50%,rgba(13,11,10,0.97)_100%)]" />
         <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.15fr_1fr] lg:px-8 lg:py-24">
           <div className="animate-rise">
             <Badge className="bg-[#EA580C] text-white" data-testid="hero-badge">
-              Scan · Order · We Ping You Loud
+              Order · We Alert You · Pay &amp; Collect
             </Badge>
             <h1 className="mt-5 font-serif text-4xl font-bold leading-[1.05] tracking-tight text-[#FAF6F3] sm:text-5xl lg:text-[3.5rem]">
               Bold Caribbean flavours,
               <span className="block text-[#F59E0B]">no queue, no waiting around.</span>
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-[#D6CBC3]">
-              Order jerk chicken, curry goat or a rum punch straight from your phone. When it&apos;s
-              plated, your screen flashes and sounds a loud alarm — then just come to the counter to
-              pay and pick it up.
+              Order jerk chicken, curry goat or a rum punch straight from your phone and sit
+              anywhere. When it&apos;s plated, your screen flashes and sounds a loud alarm — then
+              come to the counter to pay and pick it up.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                to="/table/1"
+                to="/order"
                 className={buttonVariants({ size: "lg" })}
                 data-testid="hero-start-order-button"
               >
-                <QrCode className="size-4" /> Start an order
-              </Link>
-              <Link
-                to="/takeout"
-                className={`${buttonVariants({ size: "lg" })} !bg-[#059669] hover:!bg-[#047857]`}
-                data-testid="hero-takeout-button"
-              >
-                <ShoppingBag className="size-4" /> Takeout / Pickup
-              </Link>
-              <Link
-                to="/staff/tables"
-                className={buttonVariants({ variant: "outline", size: "lg" })}
-                data-testid="hero-table-qr-link"
-              >
-                Table QR codes <ArrowRight className="size-4" />
+                <ShoppingBag className="size-4" /> Start your order
               </Link>
             </div>
           </div>
 
           <div className="animate-rise rounded-2xl border border-[#3D322C] bg-[#1A1614]/85 p-5 shadow-2xl shadow-black/50 backdrop-blur-md sm:p-6">
-            <h2 className="font-serif text-xl font-semibold text-[#FAF6F3]">Sat down already?</h2>
-            <p className="mt-1 text-sm text-[#A89C94]">Pick your table number to open the menu.</p>
-            <div className="mt-4 grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-4">
-              {TABLES.map((t) => (
-                <Link
-                  key={t}
-                  to={`/table/${t}`}
-                  data-testid={`home-table-${t}-link`}
-                  className="grid h-12 place-items-center rounded-lg border border-[#3D322C] bg-[#241E1A] font-mono text-sm font-bold text-[#F5EFEB] transition-colors duration-150 hover:border-[#EA580C] hover:bg-[#EA580C] hover:text-white"
-                >
-                  {t}
-                </Link>
+            <h2 className="font-serif text-xl font-semibold text-[#FAF6F3]">How it works</h2>
+            <ol className="mt-4 space-y-4">
+              {STEPS.map(({ icon: Icon, title, desc }, i) => (
+                <li key={title} className="flex gap-3" data-testid={`how-it-works-step-${i + 1}`}>
+                  <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#241E1A] text-[#F59E0B]">
+                    <Icon className="size-4" />
+                  </span>
+                  <div>
+                    <p className="font-serif text-base font-semibold text-[#FAF6F3]">{title}</p>
+                    <p className="text-sm text-[#A89C94]">{desc}</p>
+                  </div>
+                </li>
               ))}
-            </div>
-
-            <div className="mt-6 border-t border-[#2E2622] pt-5">
-              <p className="text-sm text-[#D6CBC3]">Not eating in?</p>
-              <Link
-                to="/takeout"
-                className={`${buttonVariants({ variant: "outline" })} mt-2 w-full !border-[#10B981] !text-[#10B981] hover:!bg-[#059669] hover:!text-white`}
-                data-testid="home-takeout-link"
-              >
-                <ShoppingBag className="size-4" /> Order takeout for pickup
-              </Link>
-            </div>
+            </ol>
 
             <div className="mt-6 border-t border-[#2E2622] pt-5">
               <Label htmlFor="claim-code" className="text-[#D6CBC3]">
-                Scanned your receipt QR? Track an order
+                Already ordered? Track it
               </Label>
               <form
                 className="mt-2 flex gap-2"

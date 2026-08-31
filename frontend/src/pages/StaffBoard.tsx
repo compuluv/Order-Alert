@@ -5,7 +5,6 @@ import { Bell, BellOff, QrCode, Search, Timer, Loader2, Lock } from "lucide-reac
 import { toast } from "sonner";
 import SiteHeader from "@/components/SiteHeader";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { apiGet, apiPatch } from "@/lib/api";
 import {
@@ -44,7 +43,7 @@ export default function StaffBoard() {
       if (fresh.length > 0) {
         if (sound) playChime("new");
         toast.info(`${fresh.length} new order${fresh.length > 1 ? "s" : ""} in`, {
-          description: fresh.map((o) => `${o.code} · T${o.table_number}`).join(", "),
+          description: fresh.map((o) => `${o.code} · ${o.customer_name}`).join(", "),
         });
       }
     }
@@ -66,9 +65,7 @@ export default function StaffBoard() {
     const term = q.trim().toLowerCase();
     if (!term) return true;
     return (
-      o.code.toLowerCase().includes(term) ||
-      o.customer_name.toLowerCase().includes(term) ||
-      String(o.table_number) === term
+      o.code.toLowerCase().includes(term) || o.customer_name.toLowerCase().includes(term)
     );
   });
 
@@ -90,11 +87,11 @@ export default function StaffBoard() {
               Alerts
             </Button>
             <Link
-              to="/staff/tables"
+              to="/staff/qr"
               className={buttonVariants({ variant: "secondary", size: "sm" })}
               data-testid="staff-tables-link"
             >
-              <QrCode className="size-4" /> Table QRs
+              <QrCode className="size-4" /> Order QR
             </Link>
             <Button
               variant="ghost"
@@ -126,7 +123,7 @@ export default function StaffBoard() {
             <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search code, name or table"
+              placeholder="Search code or name"
               className="pl-9"
               data-testid="staff-search-input"
             />
@@ -182,9 +179,6 @@ export default function StaffBoard() {
                         <span className="font-mono text-lg font-extrabold tracking-wider text-[#F59E0B]">
                           {o.code}
                         </span>
-                        <Badge className="bg-[#EA580C] text-white">
-                          {o.order_type === "takeout" ? "TAKEOUT" : `T${o.table_number}`}
-                        </Badge>
                         <span className="ml-auto flex items-center gap-1 font-mono text-xs text-[#A89C94]">
                           <Timer className="size-3" /> {elapsed(o.created_at)}
                         </span>

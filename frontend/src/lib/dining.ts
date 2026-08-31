@@ -18,13 +18,9 @@ export interface OrderLine {
   option: string | null;
 }
 
-export type OrderType = "dine_in" | "takeout";
-
 export interface Order {
   id: string;
   code: string;
-  order_type: OrderType;
-  table_number: number | null;
   customer_name: string;
   phone: string | null;
   notes: string | null;
@@ -104,5 +100,3 @@ export function elapsed(iso: string): string {
   if (mins < 60) return `${mins}m`;
   return `${Math.floor(mins / 60)}h ${mins % 60}m`;
 }
-
-export const TABLES = Array.from({ length: 16 }, (_, i) => i + 1);

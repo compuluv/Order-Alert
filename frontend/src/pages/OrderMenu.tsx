@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ShoppingBag, Plus, Minus, Trash2, Flame, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -33,10 +33,8 @@ interface CartLine extends OrderLine {
 
 const lineKey = (id: string, option: string | null) => `${id}::${option ?? ""}`;
 
-export default function TableMenu() {
-  const { tableId } = useParams<{ tableId: string }>();
-  const isTakeout = tableId === undefined;
-  const table = isTakeout ? null : Number(tableId);
+/** Single ordering surface — no tables. Everyone pays & collects at the counter. */
+export default function OrderMenu() {
   const navigate = useNavigate();
   const qc = useQueryClient();
 
@@ -85,17 +83,15 @@ export default function TableMenu() {
 
   const changeQty = (key: string, delta: number) =>
     setCart((prev) =>
-      prev
-        .map((l) => (l.key === key ? { ...l, qty: l.qty + delta } : l))
-        .filter((l) => l.qty > 0),
+      prev.map((l) => (l.key === key ? { ...l, qty: l.qty + delta } : l)).filter((l) => l.qty > 0),
     );
+
+  const nameMissing = !name.trim();
 
   const placeOrder = useMutation({
     mutationFn: () =>
       apiPost<Order>("/orders", {
-        order_type: isTakeout ? "takeout" : "dine_in",
-        table_number: table,
-        customer_name: name.trim() || "Guest",
+        customer_name: name.trim(),
         phone: phone.trim() || null,
         notes: notes.trim() || null,
         lines: cart.map(({ item_id, name: n, price, qty, option }) => ({
@@ -111,53 +107,30 @@ export default function TableMenu() {
       setCart([]);
       setCartOpen(false);
       navigate(`/status/${order.id}`);
-    },    onError: () =>
-      toast.error(
-        isTakeout && !phone.trim()
-          ? "A phone number is required for takeout so we can ring you."
-          : "Could not place the order. Please try again.",
-      ),
+    },
+    onError: () => toast.error("Could not place the order. Please try again."),
   });
-
-  const phoneMissing = isTakeout && !phone.trim();
 
   return (
     <div className="min-h-screen bg-[#0D0B0A] pb-28">
       <SiteHeader
         right={
-          isTakeout ? (
-            <Badge className="bg-[#059669] font-mono text-white" data-testid="takeout-badge">
-              Takeout · Pickup
-            </Badge>
-          ) : (
-            <Badge className="bg-[#F59E0B] font-mono text-[#1A1202]" data-testid="table-badge">
-              Table {table}
-            </Badge>
-          )
+          <Badge className="bg-[#059669] font-mono text-white" data-testid="pickup-badge">
+            Pay &amp; collect at counter
+          </Badge>
         }
       />
 
       <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
         <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-[#EA580C]">
-          {isTakeout ? "Takeout ordering" : "Dine-in ordering"}
+          Order from your phone
         </p>
         <h1 className="mt-2 font-serif text-3xl font-bold tracking-tight text-[#FAF6F3] sm:text-4xl">
           The Menu
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-[#A89C94]">
-          {isTakeout ? (
-            <>
-              Ordering for <span className="font-mono text-[#10B981]">pickup</span>. Leave your
-              phone number, then keep this tab open — we&apos;ll flash and sound a loud alarm when
-              it&apos;s time to pay &amp; collect at the counter.
-            </>
-          ) : (
-            <>
-              Ordering for <span className="font-mono text-[#F59E0B]">Table {table}</span>. Order
-              here, then we&apos;ll flash and sound a loud alarm on your phone when it&apos;s time
-              to pay &amp; collect at the counter.
-            </>
-          )}
+          Sit anywhere you like. When your food&apos;s up, this screen flashes and sounds a loud
+          alarm — then head to the counter to pay and collect.
         </p>
 
         <div
@@ -181,8 +154,11 @@ export default function TableMenu() {
         </div>
 
         {isError && (
-          <p className="mt-8 rounded-xl border border-[#3D322C] bg-[#1A1614] p-5 text-sm text-[#B5A9A1]" data-testid="menu-error-state">
-            The menu is offline right now. Please ask your server for a printed menu.
+          <p
+            className="mt-8 rounded-xl border border-[#3D322C] bg-[#1A1614] p-5 text-sm text-[#B5A9A1]"
+            data-testid="menu-error-state"
+          >
+            The menu is offline right now. Please order at the counter.
           </p>
         )}
         {isLoading && (
@@ -238,7 +214,6 @@ export default function TableMenu() {
         </div>
       </div>
 
-      {/* Customiser */}
       <Dialog open={customizing !== null} onOpenChange={(o) => !o && setCustomizing(null)}>
         <DialogContent data-testid="item-customizer-dialog">
           <DialogHeader>
@@ -263,7 +238,6 @@ export default function TableMenu() {
         </DialogContent>
       </Dialog>
 
-      {/* Cart bar */}
       <Sheet open={cartOpen} onOpenChange={setCartOpen}>
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#2E2622] bg-[#1A1614]/95 px-4 py-3 backdrop-blur-xl sm:px-6">
           <div className="mx-auto flex max-w-7xl items-center gap-4">
@@ -299,9 +273,7 @@ export default function TableMenu() {
 
         <SheetContent className="flex w-full flex-col sm:max-w-md" data-testid="cart-sheet">
           <SheetHeader>
-            <SheetTitle className="font-serif text-xl">
-              {isTakeout ? "Takeout · Your order" : `Table ${table} · Your order`}
-            </SheetTitle>
+            <SheetTitle className="font-serif text-xl">Your order</SheetTitle>
           </SheetHeader>
           <div className="flex-1 space-y-3 overflow-y-auto px-4">
             {cart.length === 0 && (
@@ -319,9 +291,7 @@ export default function TableMenu() {
                   <p className="truncate font-serif text-sm font-semibold text-[#FAF6F3]">
                     {l.name}
                   </p>
-                  {l.option && (
-                    <p className="text-xs text-[#F59E0B]">{l.option}</p>
-                  )}
+                  {l.option && <p className="text-xs text-[#F59E0B]">{l.option}</p>}
                   <p className="font-mono text-xs text-[#A89C94]">{money(l.price)} each</p>
                 </div>
                 <Button
@@ -354,7 +324,7 @@ export default function TableMenu() {
 
             <div className="space-y-3 border-t border-[#2E2622] pt-4">
               <div>
-                <Label htmlFor="cust-name">Your name</Label>
+                <Label htmlFor="cust-name">Your name (called at the counter)</Label>
                 <Input
                   id="cust-name"
                   value={name}
@@ -362,11 +332,14 @@ export default function TableMenu() {
                   placeholder="e.g. Alexis"
                   data-testid="customer-name-input"
                 />
+                {nameMissing && cart.length > 0 && (
+                  <p className="mt-1 text-xs text-[#F59E0B]" data-testid="name-required-hint">
+                    We need a name so staff can call your order.
+                  </p>
+                )}
               </div>
               <div>
-                <Label htmlFor="cust-phone">
-                  {isTakeout ? "Phone (required — we ring this)" : "Phone (for the ready ping)"}
-                </Label>
+                <Label htmlFor="cust-phone">Phone (optional)</Label>
                 <Input
                   id="cust-phone"
                   value={phone}
@@ -374,11 +347,6 @@ export default function TableMenu() {
                   placeholder="416-555-0142"
                   data-testid="customer-phone-input"
                 />
-                {phoneMissing && (
-                  <p className="mt-1 text-xs text-[#F59E0B]" data-testid="phone-required-hint">
-                    Takeout orders need a phone number so we can ring you when it&apos;s ready.
-                  </p>
-                )}
               </div>
               <div>
                 <Label htmlFor="cust-notes">Kitchen notes</Label>
@@ -393,16 +361,22 @@ export default function TableMenu() {
             </div>
           </div>
           <div className="border-t border-[#2E2622] p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <span className="text-sm text-[#B5A9A1]">Total</span>
-              <span className="font-mono text-xl font-bold text-[#F59E0B]" data-testid="cart-sheet-total">
+            <div className="mb-1 flex items-center justify-between">
+              <span className="text-sm text-[#B5A9A1]">Total due at counter</span>
+              <span
+                className="font-mono text-xl font-bold text-[#F59E0B]"
+                data-testid="cart-sheet-total"
+              >
                 {money(total)}
               </span>
             </div>
+            <p className="mb-3 text-xs text-[#A89C94]">
+              Nothing to pay now — pay when you collect.
+            </p>
             <Button
               className="w-full"
               size="lg"
-              disabled={cart.length === 0 || placeOrder.isPending || phoneMissing}
+              disabled={cart.length === 0 || placeOrder.isPending || nameMissing}
               onClick={() => {
                 // Must run inside the click so the browser lets the pickup alarm sound later.
                 unlockAudio();
