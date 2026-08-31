@@ -2,6 +2,27 @@
 
 Restaurant QR ordering app themed on centralbarandgrill.ca (Toronto Jamaican bar & grill, est. 2006).
 
+## Counter TV display — `/counter` (ungated, meant to be left running on a TV)
+Polls every 4s. Big **NOW READY** grid of order codes + guest names (stays up until staff mark the
+order collected/served), with a smaller **Still cooking** column showing received/preparing tickets
+and elapsed time. Newly-ready codes flash via the `flashcard` keyframe for ~12s, then settle to
+solid green. Linked from the staff board ("Counter TV", opens in a new tab).
+
+## SMS order-ready texts (`backend/lib/sms.py`)
+When staff advance a ticket to `ready`, a FastAPI `BackgroundTasks` job texts the guest:
+"Central Bar & Grill: {name}, your order {code} is READY! Come to the counter to pay & collect
+(${total} due)." Phone numbers are normalised to E.164 (bare 10-digit numbers get `+1`).
+- Credentials: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER` in backend/.env.
+- **Empty by default = DEMO MODE**: the message is logged (`/var/log/supervisor/backend.err.log`)
+  instead of sent, and nothing breaks. Paste real keys + restart backend to go live.
+- `send_sms()` never raises — a failed text must not fail the staff's ping action.
+- `GET /api/sms/status` → `{configured: bool}`, surfaced on the staff board as a live/demo badge.
+- Twilio trial accounts can only text numbers verified in the Twilio console.
+
+## Menu categories
+`Appetizers, Entrees, Seafood, Sides, Drinks` — all cocktails/punches/blends live under a single
+**Drinks** heading (the old "Signatures" and "Island Blends" groups were merged).
+
 ## Flows
 1. Guest scans the "Scan to order" poster (or taps "Start your order") → `/order` — one menu, no
    table numbers.

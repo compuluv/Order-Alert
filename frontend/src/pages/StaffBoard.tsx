@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, BellOff, QrCode, Search, Timer, Loader2, Lock } from "lucide-react";
+import { Bell, BellOff, QrCode, Search, Timer, Loader2, Lock, Tv, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import SiteHeader from "@/components/SiteHeader";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -50,6 +50,11 @@ export default function StaffBoard() {
     knownIds.current = ids;
   }, [orders, sound]);
 
+  const { data: smsInfo } = useQuery({
+    queryKey: ["sms-status"],
+    queryFn: () => apiGet<{ configured: boolean }>("/sms/status"),
+  });
+
   const advance = useMutation({
     mutationFn: ({ id, status }: { id: string; status: OrderStatus }) =>
       apiPatch<Order>(`/orders/${id}/status`, { status }),
@@ -87,6 +92,14 @@ export default function StaffBoard() {
               Alerts
             </Button>
             <Link
+              to="/counter"
+              target="_blank"
+              className={buttonVariants({ variant: "secondary", size: "sm" })}
+              data-testid="counter-display-link"
+            >
+              <Tv className="size-4" /> Counter TV
+            </Link>
+            <Link
               to="/staff/qr"
               className={buttonVariants({ variant: "secondary", size: "sm" })}
               data-testid="staff-tables-link"
@@ -117,6 +130,15 @@ export default function StaffBoard() {
             <h1 className="mt-2 font-serif text-3xl font-bold tracking-tight text-[#FAF6F3] sm:text-4xl">
               Live orders
             </h1>
+            <p
+              className="mt-2 flex items-center gap-1.5 text-xs text-[#A89C94]"
+              data-testid="sms-mode-indicator"
+            >
+              <MessageSquare className="size-3.5" />
+              {smsInfo?.configured
+                ? "Texts are live — guests get an SMS when you ping them"
+                : "SMS in demo mode — add Twilio keys to send real texts"}
+            </p>
           </div>
           <div className="relative w-full max-w-xs">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#A89C94]" />

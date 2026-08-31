@@ -12,8 +12,7 @@ CATEGORY_ORDER = [
     "Entrees",
     "Seafood",
     "Sides",
-    "Signatures",
-    "Island Blends",
+    "Drinks",
 ]
 
 

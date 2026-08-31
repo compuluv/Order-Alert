@@ -5,10 +5,11 @@ from typing import List
 
 import qrcode
 import qrcode.image.svg
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
 from fastapi.responses import Response
 
 from lib.db import db
+from lib.sms import ready_message, send_sms, sms_configured
 from models.dining import ORDER_STATUSES, Order, OrderCreate, StatusUpdate
 
 router = APIRouter()
@@ -57,7 +58,7 @@ async def get_order(order_id: str):
 
 
 @router.patch("/orders/{order_id}/status", response_model=Order)
-async def update_status(order_id: str, payload: StatusUpdate):
+async def update_status(order_id: str, payload: StatusUpdate, background: BackgroundTasks):
     if payload.status not in ORDER_STATUSES:
         raise HTTPException(status_code=400, detail=f"status must be one of {ORDER_STATUSES}")
     doc = await db.orders.find_one({"id": order_id})
@@ -68,7 +69,22 @@ async def update_status(order_id: str, payload: StatusUpdate):
         {"$set": {"status": payload.status, "updated_at": datetime.now(timezone.utc)}},
     )
     doc = await db.orders.find_one({"id": order_id})
-    return Order(**_aware(doc or {}))
+    order = Order(**_aware(doc or {}))
+
+    # Text the guest when it's ready, so they're alerted even with the page closed.
+    if payload.status == "ready":
+        background.add_task(
+            send_sms,
+            order.phone,
+            ready_message(order.code, order.customer_name, order.total),
+        )
+    return order
+
+
+@router.get("/sms/status")
+async def sms_status():
+    """Lets the UI show whether real texts are going out or demo-mode logging."""
+    return {"configured": sms_configured()}
 
 
 @router.get("/qr")

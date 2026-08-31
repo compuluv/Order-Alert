@@ -6,6 +6,7 @@ import OrderMenu from "@/pages/OrderMenu";
 import OrderStatus from "@/pages/OrderStatus";
 import StaffBoard from "@/pages/StaffBoard";
 import StaffQr from "@/pages/StaffQr";
+import CounterDisplay from "@/pages/CounterDisplay";
 
 // One <Route> per page in src/pages; BrowserRouter already wraps this in main.tsx.
 export default function App() {
@@ -18,6 +19,8 @@ export default function App() {
         <Route path="/table/:tableId" element={<Navigate to="/order" replace />} />
         <Route path="/takeout" element={<Navigate to="/order" replace />} />
         <Route path="/status/:orderId" element={<OrderStatus />} />
+        {/* Counter TV screen — deliberately ungated so it can be left running. */}
+        <Route path="/counter" element={<CounterDisplay />} />
         <Route
           path="/staff"
           element={

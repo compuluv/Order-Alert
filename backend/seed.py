@@ -41,17 +41,17 @@ MENU = [
     ("Bammy", "Traditional cassava flatbread fried until golden.", 2.00, "Sides", PLANTAIN, [], False),
     ("Fries", "Crispy golden fries — a classic that never disappoints.", 5.75, "Sides", PLANTAIN, [], False),
     ("Rice & Peas", "Coconut-infused rice slow-cooked with kidney beans and island herbs.", 5.50, "Sides", PLANTAIN, [], False),
-    # Signatures
-    ("Rum Punch", "Wray & Nephew rum, tropical juices and a splash of citrus.", 16.50, "Signatures", RUM, [], True),
-    ("Margarita", "Espolon Tequila, fresh lime and citrus. Shaken, never blended.", 17.00, "Signatures", COCKTAIL, [], False),
-    ("Finding Nemo", "Hypnotiq, Malibu Rum and Blue Curacao. Sweet and tropical.", 15.75, "Signatures", COCKTAIL, [], False),
-    ("Lychee Martini", "Absolut Vodka and Soho Lychee with a fresh lychee garnish.", 17.00, "Signatures", COCKTAIL, [], False),
-    ("Amaretto Sour", "Amaretto, fresh citrus and a bold nutty twist.", 15.75, "Signatures", COCKTAIL, [], False),
-    # Island Blends
-    ("Mango Daiquiri", "Frozen Wray & Nephew rum blended with juicy mango.", 15.75, "Island Blends", COCKTAIL, [], False),
-    ("Strawberry Daiquiri", "Frozen rum and fresh strawberry — full of island vibes.", 15.75, "Island Blends", COCKTAIL, [], False),
-    ("Pina Colada", "Creamy coconut, pineapple and Malibu Rum over ice.", 15.75, "Island Blends", RUM, [], False),
-    ("Peach Bellini", "Appleton Signature Rum blended with juicy peach.", 17.00, "Island Blends", RUM, [], False),
+    # Drinks (all cocktails, punches & blends)
+    ("Rum Punch", "Wray & Nephew rum, tropical juices and a splash of citrus.", 16.50, "Drinks", RUM, [], True),
+    ("Margarita", "Espolon Tequila, fresh lime and citrus. Shaken, never blended.", 17.00, "Drinks", COCKTAIL, [], False),
+    ("Finding Nemo", "Hypnotiq, Malibu Rum and Blue Curacao. Sweet and tropical.", 15.75, "Drinks", COCKTAIL, [], False),
+    ("Lychee Martini", "Absolut Vodka and Soho Lychee with a fresh lychee garnish.", 17.00, "Drinks", COCKTAIL, [], False),
+    ("Amaretto Sour", "Amaretto, fresh citrus and a bold nutty twist.", 15.75, "Drinks", COCKTAIL, [], False),
+    
+    ("Mango Daiquiri", "Frozen Wray & Nephew rum blended with juicy mango.", 15.75, "Drinks", COCKTAIL, [], False),
+    ("Strawberry Daiquiri", "Frozen rum and fresh strawberry — full of island vibes.", 15.75, "Drinks", COCKTAIL, [], False),
+    ("Pina Colada", "Creamy coconut, pineapple and Malibu Rum over ice.", 15.75, "Drinks", RUM, [], False),
+    ("Peach Bellini", "Appleton Signature Rum blended with juicy peach.", 17.00, "Drinks", RUM, [], False),
 ]
 
 
