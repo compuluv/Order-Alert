@@ -20,8 +20,8 @@ import {
 
 const COLUMNS: { status: OrderStatus; title: string; accent: string; next?: OrderStatus; cta?: string }[] = [
   { status: "received", title: "New tickets", accent: "#6366F1", next: "preparing", cta: "Start cooking" },
-  { status: "preparing", title: "In the kitchen", accent: "#F59E0B", next: "ready", cta: "Mark ready" },
-  { status: "ready", title: "Ready — ring the guest", accent: "#10B981", next: "served", cta: "Mark served" },
+  { status: "preparing", title: "In the kitchen", accent: "#F59E0B", next: "ready", cta: "PING guest to collect" },
+  { status: "ready", title: "Pinged — waiting at counter", accent: "#10B981", next: "served", cta: "Paid & collected" },
 ];
 
 export default function StaffBoard() {

@@ -24,6 +24,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { apiGet, apiPost } from "@/lib/api";
+import { unlockAudio } from "@/lib/alarm";
 import { money, type MenuItem, type Order, type OrderLine } from "@/lib/dining";
 
 interface CartLine extends OrderLine {
@@ -110,8 +111,7 @@ export default function TableMenu() {
       setCart([]);
       setCartOpen(false);
       navigate(`/status/${order.id}`);
-    },
-    onError: () =>
+    },    onError: () =>
       toast.error(
         isTakeout && !phone.trim()
           ? "A phone number is required for takeout so we can ring you."
@@ -148,13 +148,14 @@ export default function TableMenu() {
           {isTakeout ? (
             <>
               Ordering for <span className="font-mono text-[#10B981]">pickup</span>. Leave your
-              phone number and we&apos;ll ring it the moment your food is bagged — wait wherever you
-              like.
+              phone number, then keep this tab open — we&apos;ll flash and sound a loud alarm when
+              it&apos;s time to pay &amp; collect at the counter.
             </>
           ) : (
             <>
-              Ordering for <span className="font-mono text-[#F59E0B]">Table {table}</span>. Add what
-              you like, then send it straight to the kitchen.
+              Ordering for <span className="font-mono text-[#F59E0B]">Table {table}</span>. Order
+              here, then we&apos;ll flash and sound a loud alarm on your phone when it&apos;s time
+              to pay &amp; collect at the counter.
             </>
           )}
         </p>
@@ -402,7 +403,11 @@ export default function TableMenu() {
               className="w-full"
               size="lg"
               disabled={cart.length === 0 || placeOrder.isPending || phoneMissing}
-              onClick={() => placeOrder.mutate()}
+              onClick={() => {
+                // Must run inside the click so the browser lets the pickup alarm sound later.
+                unlockAudio();
+                placeOrder.mutate();
+              }}
               data-testid="place-order-button"
             >
               {placeOrder.isPending ? (

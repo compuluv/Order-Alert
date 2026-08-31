@@ -45,15 +45,16 @@ export default function Home() {
         <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.15fr_1fr] lg:px-8 lg:py-24">
           <div className="animate-rise">
             <Badge className="bg-[#EA580C] text-white" data-testid="hero-badge">
-              Scan · Order · Get Pinged
+              Scan · Order · We Ping You Loud
             </Badge>
             <h1 className="mt-5 font-serif text-4xl font-bold leading-[1.05] tracking-tight text-[#FAF6F3] sm:text-5xl lg:text-[3.5rem]">
               Bold Caribbean flavours,
-              <span className="block text-[#F59E0B]">served without the wait.</span>
+              <span className="block text-[#F59E0B]">no queue, no waiting around.</span>
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-[#D6CBC3]">
-              Scan the QR tent on your table, order jerk chicken, curry goat or a rum punch right
-              from your phone, and we&apos;ll ring your phone the moment it leaves the kitchen.
+              Order jerk chicken, curry goat or a rum punch straight from your phone. When it&apos;s
+              plated, your screen flashes and sounds a loud alarm — then just come to the counter to
+              pay and pick it up.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link

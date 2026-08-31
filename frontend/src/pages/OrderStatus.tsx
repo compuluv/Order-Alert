@@ -4,17 +4,17 @@ import { useQuery } from "@tanstack/react-query";
 import { Check, Bell, BellOff, CookingPot, Receipt, Loader2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import SiteHeader from "@/components/SiteHeader";
+import PickupAlert from "@/components/PickupAlert";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { apiGet } from "@/lib/api";
+import { audioReady, notify, startAlarm, stopAlarm, unlockAudio } from "@/lib/alarm";
 import {
   STATUS_COLOR,
   STATUS_LABEL,
   askNotificationPermission,
   money,
-  playChime,
   qrSrc,
-  ringPhone,
   type Order,
   type OrderStatus,
 } from "@/lib/dining";
@@ -22,7 +22,11 @@ import {
 const STEPS: { status: OrderStatus; label: string; note: string }[] = [
   { status: "received", label: "Order received", note: "The kitchen has your ticket" },
   { status: "preparing", label: "On the grill", note: "Your food is being cooked fresh" },
-  { status: "ready", label: "Ready for you", note: "We'll ring you — come collect or sit tight" },
+  {
+    status: "ready",
+    label: "Come pay & collect",
+    note: "We'll sound a loud alarm on this screen — then head to the counter",
+  },
 ];
 
 const stepIndex = (s: OrderStatus) => (s === "served" ? 2 : STEPS.findIndex((x) => x.status === s));
@@ -30,6 +34,8 @@ const stepIndex = (s: OrderStatus) => (s === "served" ? 2 : STEPS.findIndex((x) 
 export default function OrderStatus() {
   const { orderId } = useParams<{ orderId: string }>();
   const [sound, setSound] = useState(true);
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [armed, setArmed] = useState(() => audioReady());
   const lastStatus = useRef<OrderStatus | null>(null);
 
   const { data: order, isError, isLoading } = useQuery({
@@ -44,31 +50,25 @@ export default function OrderStatus() {
 
   useEffect(() => {
     if (!order) return;
-    if (lastStatus.current && lastStatus.current !== order.status) {
-      if (order.status === "ready") {
-        const takeout = order.order_type === "takeout";
-        if (sound) {
-          if (takeout) {
-            ringPhone(
-              "Your takeout is ready!",
-              `Order ${order.code} — come collect it at the counter.`,
-            );
-          } else {
-            playChime("ready");
-          }
-        }
-        toast.success(takeout ? "Your takeout is ready — head back!" : "Your order is ready!", {
-          description: takeout
-            ? `Order ${order.code} — collect at the counter`
-            : `Order ${order.code} — Table ${order.table_number}`,
-          duration: 12000,
-        });
-      } else {
-        toast.info(STATUS_LABEL[order.status]);
-      }
-    }
+    const wasKnown = lastStatus.current !== null;
+    const changed = wasKnown && lastStatus.current !== order.status;
     lastStatus.current = order.status;
+
+    if (order.status === "ready" && (changed || !wasKnown)) {
+      setAlertOpen(true);
+      if (sound) startAlarm();
+      notify("Your order is ready!", `Order ${order.code} — come pay & collect at the counter.`);
+      toast.success("Ready — come pay & collect at the counter", {
+        description: `Order ${order.code} · ${money(order.total)} due`,
+        duration: 20000,
+      });
+    } else if (changed) {
+      toast.info(STATUS_LABEL[order.status]);
+      if (order.status !== "ready") stopAlarm();
+    }
   }, [order, sound]);
+
+  useEffect(() => () => stopAlarm(), []);
 
   const active = order ? stepIndex(order.status) : -1;
   const claimUrl = order ? `${window.location.origin}/status/${order.code}` : "";
@@ -81,13 +81,19 @@ export default function OrderStatus() {
             variant="outline"
             size="sm"
             onClick={() => {
-              setSound((s) => !s);
-              if (!sound) playChime("new");
+              const next = !sound;
+              setSound(next);
+              if (next) {
+                unlockAudio();
+                setArmed(true);
+              } else {
+                stopAlarm();
+              }
             }}
             data-testid="sound-toggle-button"
           >
             {sound ? <Bell className="size-4" /> : <BellOff className="size-4" />}
-            {sound ? "Chime on" : "Chime off"}
+            {sound ? "Alarm on" : "Alarm off"}
           </Button>
         }
       />
@@ -120,17 +126,48 @@ export default function OrderStatus() {
           </p>
         )}
 
-        {order && order.order_type === "takeout" && order.status === "ready" && (
+        {order && order.status === "ready" && alertOpen && (
+          <PickupAlert
+            code={order.code}
+            total={order.total}
+            onDismiss={() => setAlertOpen(false)}
+          />
+        )}
+
+        {order && order.status !== "ready" && !armed && (
           <div
-            className="mt-6 animate-chime rounded-2xl border-2 border-[#10B981] bg-[#10B981] p-6 text-center"
-            data-testid="takeout-ready-banner"
+            className="mt-6 flex flex-wrap items-center gap-3 rounded-xl border border-[#F59E0B] bg-[#241E1A] p-4"
+            data-testid="arm-alarm-prompt"
           >
-            <p className="font-serif text-2xl font-bold text-[#022C22] sm:text-3xl">
-              Come to the counter — your food is bagged!
+            <Bell className="size-5 shrink-0 text-[#F59E0B]" />
+            <p className="min-w-0 flex-1 text-sm text-[#F5EFEB]">
+              Tap to switch on the loud pickup alarm — it&apos;s a noisy room, so we&apos;ll flash
+              and sound this screen when your food is ready.
             </p>
-            <p className="mt-1 font-mono text-sm font-semibold text-[#064E3B]">
-              Order {order.code} · show your claim QR
+            <Button
+              onClick={() => {
+                unlockAudio();
+                setArmed(true);
+                toast.success("Alarm armed — keep this screen open");
+              }}
+              data-testid="arm-alarm-button"
+            >
+              Turn on alarm
+            </Button>
+          </div>
+        )}
+
+        {order && order.status === "ready" && !alertOpen && (
+          <div
+            className="mt-6 flex flex-wrap items-center gap-3 rounded-xl border-2 border-[#10B981] bg-[#0f2b22] p-4"
+            data-testid="ready-reminder-banner"
+          >
+            <p className="min-w-0 flex-1 font-serif text-lg font-semibold text-[#A7F3D0]">
+              Ready — pay &amp; collect at the counter ({money(order.total)} due)
             </p>
+            <Button onClick={() => setAlertOpen(true)} data-testid="show-pickup-alert-button">
+              Show my pickup screen
+            </Button>
           </div>
         )}
 
@@ -243,7 +280,8 @@ export default function OrderStatus() {
             <div className="animate-rise rounded-2xl border border-[#3D322C] bg-[#241E1A] p-5 text-center sm:p-6">
               <h2 className="font-serif text-lg font-semibold text-[#FAF6F3]">Your claim QR</h2>
               <p className="mt-1 text-sm text-[#BCB1A8]">
-                Show this at the counter, or scan it later to reopen this tracker.
+                Show this at the counter when you pay &amp; collect, or scan it later to reopen this
+                tracker.
               </p>
               <div className="mx-auto mt-4 w-full max-w-[220px] rounded-xl bg-[#FAF6F3] p-3">
                 <img

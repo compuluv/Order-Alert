@@ -42,8 +42,8 @@ export const STATUS_FLOW: OrderStatus[] = ["received", "preparing", "ready", "se
 export const STATUS_LABEL: Record<OrderStatus, string> = {
   received: "Order Received",
   preparing: "In The Kitchen",
-  ready: "Ready For You",
-  served: "Served",
+  ready: "Pay & Collect Now",
+  served: "Collected",
 };
 
 export const STATUS_COLOR: Record<OrderStatus, string> = {
@@ -57,7 +57,10 @@ export const money = (n: number) => `$${n.toFixed(2)}`;
 
 export const qrSrc = (data: string) => `/api/qr?data=${encodeURIComponent(data)}`;
 
-/** Web Audio synth chime — no external audio assets. */
+/**
+ * Superseded by lib/alarm.ts for the pickup alarm; kept as a short confirmation
+ * blip for lightweight cues (e.g. new-order alerts on the staff board).
+ */
 export function playChime(kind: "ready" | "new" = "ready") {
   try {
     const Ctx =
@@ -81,26 +84,6 @@ export function playChime(kind: "ready" | "new" = "ready") {
     });
   } catch {
     /* audio unavailable — silent */
-  }
-}
-
-/**
- * "Phone rings" for takeout guests waiting elsewhere: a repeating chime plus a
- * vibration burst and a browser notification, so it grabs attention like a call.
- */
-export function ringPhone(title: string, body: string) {
-  for (let i = 0; i < 4; i++) setTimeout(() => playChime("ready"), i * 900);
-  try {
-    navigator.vibrate?.([400, 200, 400, 200, 700]);
-  } catch {
-    /* no vibration support */
-  }
-  try {
-    if ("Notification" in window && Notification.permission === "granted") {
-      new Notification(title, { body });
-    }
-  } catch {
-    /* notifications unavailable */
   }
 }
 

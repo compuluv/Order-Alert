@@ -35,11 +35,23 @@ default `2006`) verified at `POST /api/staff/verify-pin`. On success the fronten
 `localStorage["cbg_staff_unlocked"]="1"` so the device is remembered; a "Lock" button clears it.
 A small "Staff" button remains on the landing page but leads to the PIN gate.
 
+## Service model — counter pickup, no wait staff
+Every order (dine-in and takeout) is collected and **paid for at the counter**. There is no table
+service. When staff advance a ticket to `ready` ("PING guest to collect"), the guest's open tracker:
+- shows `components/PickupAlert.tsx` — a **full-screen strobing takeover** (green ⇄ obsidian, 420ms)
+  with the order code, amount due, and claim QR;
+- sounds a **loud repeating square-wave two-tone siren** (`lib/alarm.ts`, ~0.5 gain, bursts every
+  1.4s) that keeps going until the guest taps "On my way — silence the alarm";
+- vibrates in a repeating pattern and fires a browser notification.
+
+Browsers block audio without a gesture, so `unlockAudio()` is called from the "Send to kitchen"
+click, from the header "Alarm on" toggle, and from the "Turn on alarm" prompt shown on trackers
+opened cold via a receipt QR (`data-testid="arm-alarm-prompt"`). If the guest dismisses the alert
+they can reopen it from `ready-reminder-banner`.
+
 ## Order types
 - `dine_in` — requires `table_number` 1–16 (entered via table QR / table picker).
-- `takeout` — no table; **phone is required** (backend 400s without it) so the guest can be rung.
-  Landing page has a "Takeout / Pickup" button → `/takeout`. When a takeout order flips to `ready`
-  the tracker fires `ringPhone()` (repeating chime + `navigator.vibrate` + browser Notification),
-  shows a full-width green "Come to the counter" banner, and a long-duration toast.
-  Staff tickets show a `TAKEOUT` badge instead of a table number.
+- `takeout` — no table; **phone is required** (backend 400s without it) so the guest can be reached.
+  Landing page has a "Takeout / Pickup" button → `/takeout`. Staff tickets show a `TAKEOUT` badge
+  instead of a table number. Both types get the identical loud/flashing pickup alarm described above.
 
