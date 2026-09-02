@@ -12,6 +12,7 @@ export default function StaffQr() {
   return (
     <div className="min-h-screen bg-[#0D0B0A]">
       <SiteHeader
+        backTo="/staff"
         right={
           <Button
             variant="outline"

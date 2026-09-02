@@ -34,7 +34,7 @@ const CHOICES = [
 export default function OrderChoice() {
   return (
     <div className="min-h-screen bg-[#0D0B0A]">
-      <SiteHeader />
+      <SiteHeader backTo="/" />
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
         <Link

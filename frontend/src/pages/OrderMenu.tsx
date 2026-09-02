@@ -160,6 +160,7 @@ export default function OrderMenu() {
   return (
     <div className="min-h-screen bg-[#0D0B0A] pb-28">
       <SiteHeader
+        backTo="/order"
         right={
           <Badge className="bg-[#059669] font-mono text-white" data-testid="pickup-badge">
             Pay &amp; collect at counter

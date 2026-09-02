@@ -30,6 +30,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#0D0B0A]">
       <SiteHeader
+        backTo={null}
         right={
           <Link
             to="/staff"

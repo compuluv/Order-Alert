@@ -101,6 +101,7 @@ export default function OrderStatus() {
   return (
     <div className="min-h-screen bg-[#0D0B0A]">
       <SiteHeader
+        backTo="/"
         right={
           <Button
             variant="outline"

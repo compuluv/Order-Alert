@@ -142,6 +142,7 @@ export default function StaffBoard() {
   return (
     <div className="min-h-screen bg-[#0D0B0A]">
       <SiteHeader
+        backTo="/"
         right={
           <>
             <Button

@@ -49,6 +49,7 @@ export default function StaffMenu() {
   return (
     <div className="min-h-screen bg-[#0D0B0A]">
       <SiteHeader
+        backTo="/staff"
         right={
           <Badge
             className={soldOutCount ? "bg-[#EF4444] text-white" : "bg-[#10B981] text-[#022C22]"}
