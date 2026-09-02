@@ -53,11 +53,18 @@ food is still cooking.
 grid to fewer columns as it grows, so `xl` is readable from across a loud room.
 
 ## Counter TV display — `/counter` (ungated, meant to be left running on a TV)
-Polls every 4s. Big **NOW SERVING** grid — the guest's **name in large type** with the order code
-underneath in small mono (staff call names out, so the name is the primary element) — plus a red
-**Come pay now** list and a smaller **Still cooking** column with elapsed time. Ready cards stay up
-until staff mark the order collected/served. Newly-ready codes flash via the `flashcard` keyframe
-for ~12s, then settle to solid green. Linked from the staff board ("Counter TV", new tab).
+Polls every 4s. Three zones:
+- **COME PAY NOW** — anyone pinged to pay gets a **large white/red flashing card**
+  (`animate-flashcardred`) with their name in the same big type as NOW SERVING, plus code and
+  amount due. Only rendered when someone is actually waiting to pay.
+- **NOW SERVING** — the guest's **name in large type** with the order code underneath in small mono
+  (staff call names out, so the name is the primary element). Newly-ready cards flash
+  (`animate-flashcard`) for ~12s then settle to solid green, and stay up until marked collected.
+- **In the queue** — side column listing `received` and `preparing` orders with elapsed time and a
+  per-row stage pill: **"Waiting in the queue"** (indigo, not yet pinged to pay) or
+  **"Cooking now"** (amber, paid and being made), so a queued order is never mistaken for cooking.
+
+Linked from the staff board ("Counter TV", new tab).
 
 ## SMS order-ready texts (`backend/lib/sms.py`)
 When staff advance a ticket to `ready`, a FastAPI `BackgroundTasks` job texts the guest:

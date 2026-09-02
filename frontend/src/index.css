@@ -25,6 +25,7 @@
     --animate-chime: chime 1.6s ease-in-out infinite;
     --animate-slidein: slidein 0.3s ease-out both;
     --animate-flashcard: flashcard 0.9s ease-in-out infinite;
+    --animate-flashcardred: flashcardred 0.9s ease-in-out infinite;
 
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
@@ -81,6 +82,10 @@
 @keyframes flashcard {
     0%, 100% { background-color: #10B981; transform: scale(1); }
     50% { background-color: #FAFFFE; transform: scale(1.04); }
+}
+@keyframes flashcardred {
+    0%, 100% { background-color: #EF4444; transform: scale(1); }
+    50% { background-color: #FFFFFF; transform: scale(1.04); }
 }
 
 :root {
