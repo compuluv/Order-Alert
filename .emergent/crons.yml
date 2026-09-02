@@ -1,0 +1,8 @@
+crons:
+  - name: auto-cancel-unpaid
+    description: "Cancels orders pinged to pay that were never paid, keeping the kitchen queue honest"
+    cron: "*/15 * * * *"
+    endpoint: "{{BASE_URL}}/api/cron/auto-cancel-unpaid"
+    method: POST
+    # Cron endpoints must ack 2xx immediately; enqueue/background the actual work.
+    enabled: true

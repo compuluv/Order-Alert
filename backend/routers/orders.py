@@ -87,6 +87,17 @@ async def update_status(order_id: str, payload: StatusUpdate, background: Backgr
     return order
 
 
+@router.patch("/orders/{order_id}/drinks-done", response_model=Order)
+async def mark_drinks_done(order_id: str):
+    """Bar has poured the drinks for this order — they go out before the food."""
+    doc = await db.orders.find_one({"id": order_id})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Order not found")
+    await db.orders.update_one({"id": order_id}, {"$set": {"drinks_done": True}})
+    updated = await db.orders.find_one({"id": order_id})
+    return Order(**_aware(updated or {}))
+
+
 @router.get("/sms/status")
 async def sms_status():
     """Lets the UI show whether real texts are going out or demo-mode logging."""

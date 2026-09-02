@@ -9,7 +9,7 @@ def _now() -> datetime:
     return datetime.now(timezone.utc)
 
 
-ORDER_STATUSES = ["received", "pay_now", "preparing", "ready", "served"]
+ORDER_STATUSES = ["received", "pay_now", "preparing", "ready", "served", "cancelled"]
 
 
 class MenuItem(BaseModel):
@@ -34,6 +34,7 @@ class OrderLine(BaseModel):
     price: float
     qty: int
     option: Optional[str] = None
+    category: Optional[str] = None
 
 
 class OrderCreate(BaseModel):
@@ -52,6 +53,7 @@ class Order(BaseModel):
     lines: List[OrderLine]
     total: float
     status: str = "received"
+    drinks_done: bool = False
     created_at: datetime = Field(default_factory=_now)
     updated_at: datetime = Field(default_factory=_now)
 

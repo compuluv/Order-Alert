@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import SiteHeader from "@/components/SiteHeader";
 import PickupAlert from "@/components/PickupAlert";
 import WaitBanner from "@/components/WaitBanner";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { apiGet } from "@/lib/api";
 import { audioReady, notify, startAlarm, stopAlarm, unlockAudio } from "@/lib/alarm";
@@ -126,10 +126,10 @@ export default function OrderStatus() {
       <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
         <Link
           to="/"
-          className={buttonVariants({ variant: "ghost", size: "sm" })}
+          className="mb-2 inline-flex items-center gap-2 rounded-xl border border-[#3D322C] bg-[#1A1614] px-5 py-3 font-sans text-lg font-bold text-[#F5EFEB] transition-colors duration-150 hover:border-[#F59E0B] hover:text-[#F59E0B]"
           data-testid="status-back-link"
         >
-          <ArrowLeft className="size-4" /> Back
+          <ArrowLeft className="size-6" /> Back
         </Link>
 
         <h1 className="mt-4 font-serif text-3xl font-bold tracking-tight text-[#FAF6F3] sm:text-4xl">
@@ -160,7 +160,21 @@ export default function OrderStatus() {
           />
         )}
 
-        {order && order.status !== "ready" && order.status !== "pay_now" && (
+        {order && order.status === "cancelled" && (
+          <div
+            className="mt-6 rounded-xl border-2 border-[#78716C] bg-[#1C1917] p-5"
+            data-testid="cancelled-banner"
+          >
+            <p className="font-serif text-xl font-bold text-[#E7E5E4]">
+              This order was cancelled — it wasn&apos;t paid for in time
+            </p>
+            <p className="mt-1 text-sm text-[#A8A29E]">
+              Nothing was charged. Please order again at the counter or from your phone.
+            </p>
+          </div>
+        )}
+
+        {order && order.status !== "ready" && order.status !== "pay_now" && order.status !== "cancelled" && (
           <div className="mt-6" data-testid="tracker-wait-banner">
             <WaitBanner compact />
           </div>

@@ -58,11 +58,13 @@ async def get_status_checks():
     status_checks = await db.status_checks.find().to_list(1000)
     return [StatusCheck(**status_check) for status_check in status_checks]
 
+from routers.cron import router as cron_router
 from routers.menu import router as menu_router
 from routers.orders import router as orders_router
 from routers.reports import router as reports_router
 from routers.staff import router as staff_router
 
+api_router.include_router(cron_router, tags=["cron"])
 api_router.include_router(menu_router, tags=["menu"])
 api_router.include_router(orders_router, tags=["orders"])
 api_router.include_router(reports_router, tags=["reports"])

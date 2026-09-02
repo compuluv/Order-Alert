@@ -17,6 +17,7 @@ export interface OrderLine {
   price: number;
   qty: number;
   option: string | null;
+  category?: string | null;
 }
 
 export interface Order {
@@ -28,11 +29,18 @@ export interface Order {
   lines: OrderLine[];
   total: number;
   status: OrderStatus;
+  drinks_done: boolean;
   created_at: string;
   updated_at: string;
 }
 
-export type OrderStatus = "received" | "pay_now" | "preparing" | "ready" | "served";
+export type OrderStatus =
+  | "received"
+  | "pay_now"
+  | "preparing"
+  | "ready"
+  | "served"
+  | "cancelled";
 
 // Mirrors WaitEstimate / DailyReport in backend/models/dining.py
 export interface WaitEstimate {
@@ -89,6 +97,7 @@ export const STATUS_LABEL: Record<OrderStatus, string> = {
   preparing: "In The Kitchen",
   ready: "Ready — Collect Now",
   served: "Collected",
+  cancelled: "Cancelled — Not Paid",
 };
 
 export const STATUS_COLOR: Record<OrderStatus, string> = {
@@ -97,7 +106,11 @@ export const STATUS_COLOR: Record<OrderStatus, string> = {
   preparing: "bg-[#F59E0B] text-[#1E1303]",
   ready: "bg-[#10B981] text-[#022C22]",
   served: "bg-[#3D322C] text-[#D6CBC3]",
+  cancelled: "bg-[#57534E] text-[#E7E5E4]",
 };
+
+export const DRINK_CATEGORY = "Drinks";
+export const isDrinkLine = (l: OrderLine) => l.category === DRINK_CATEGORY;
 
 export const money = (n: number) => `$${n.toFixed(2)}`;
 export const qrSrc = (data: string) => `/api/qr?data=${encodeURIComponent(data)}`;

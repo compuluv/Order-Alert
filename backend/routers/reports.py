@@ -62,7 +62,9 @@ async def daily_report(date: str | None = Query(default=None)):
     """End-of-night numbers for a local calendar day (defaults to today)."""
     day = date or today_iso()
     start, end = _day_bounds(day)
-    docs = await db.orders.find({"created_at": {"$gte": start, "$lt": end}}).to_list(5000)
+    docs = await db.orders.find(
+        {"created_at": {"$gte": start, "$lt": end}, "status": {"$ne": "cancelled"}}
+    ).to_list(5000)
 
     revenue = 0.0
     items_sold = 0

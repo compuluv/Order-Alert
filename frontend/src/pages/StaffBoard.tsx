@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, BellOff, QrCode, Search, Timer, Loader2, Lock, Tv, MessageSquare, BarChart3, ClipboardList, AlertTriangle, BellRing } from "lucide-react";
+import { Bell, BellOff, QrCode, Search, Timer, Loader2, Lock, Tv, MessageSquare, BarChart3, ClipboardList, AlertTriangle, BellRing, Martini } from "lucide-react";
 import { toast } from "sonner";
 import SiteHeader from "@/components/SiteHeader";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import {
   STATUS_LABEL,
   STAFF_PIN_KEY,
   elapsed,
+  isDrinkLine,
   money,
   playChime,
   type Order,
@@ -112,6 +113,22 @@ export default function StaffBoard() {
       });
     },
     onError: () => toast.error("Could not re-ping that guest."),
+  });
+
+  const drinksPending = (orders ?? []).filter(
+    (o) =>
+      (o.status === "preparing" || o.status === "ready") &&
+      !o.drinks_done &&
+      o.lines.some(isDrinkLine),
+  );
+
+  const drinksDone = useMutation({
+    mutationFn: (id: string) => apiPatch<Order>(`/orders/${id}/drinks-done`, {}),
+    onSuccess: (order) => {
+      qc.invalidateQueries({ queryKey: ["orders"] });
+      toast.success(`Drinks poured for ${order.customer_name}`);
+    },
+    onError: () => toast.error("Could not update the bar ticket."),
   });
 
   const filtered = (orders ?? []).filter((o) => {
@@ -228,6 +245,56 @@ export default function StaffBoard() {
           </p>
         )}
 
+        {drinksPending.length > 0 && (
+          <section
+            className="mt-8 rounded-2xl border-2 border-[#38BDF8] bg-[#0d1f28] p-5"
+            data-testid="bar-drinks-panel"
+          >
+            <h2 className="flex items-center gap-2 font-serif text-2xl font-bold text-[#7DD3FC]">
+              <Martini className="size-6" /> Bar — pour these now
+              <span
+                className="ml-auto rounded-full bg-[#0c4a6e] px-3 py-0.5 font-mono text-sm text-[#7DD3FC]"
+                data-testid="bar-drinks-count"
+              >
+                {drinksPending.length}
+              </span>
+            </h2>
+            <p className="mt-1 text-sm text-[#94b8c9]">
+              Paid — send drinks out straight away while the food cooks.
+            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {drinksPending.map((o) => (
+                <div
+                  key={o.id}
+                  data-testid={`bar-ticket-${o.code}`}
+                  className="rounded-xl border border-[#0369A1] bg-[#0b1922] p-4"
+                >
+                  <p className="break-words font-serif text-xl font-extrabold text-[#E0F2FE]">
+                    {o.customer_name}
+                  </p>
+                  <p className="font-mono text-xs tracking-widest text-[#7DD3FC]">{o.code}</p>
+                  <ul className="mt-2 space-y-1">
+                    {o.lines.filter(isDrinkLine).map((l, i) => (
+                      <li key={`${l.item_id}-${i}`} className="text-base text-[#CFEAF7]">
+                        <span className="font-mono text-[#7DD3FC]">{l.qty}×</span> {l.name}
+                      </li>
+                    ))}
+                  </ul>
+                  <Button
+                    size="lg"
+                    className="mt-3 w-full !bg-[#0284C7] text-base font-bold hover:!bg-[#0369A1]"
+                    disabled={drinksDone.isPending}
+                    onClick={() => drinksDone.mutate(o.id)}
+                    data-testid={`bar-drinks-done-button-${o.code}`}
+                  >
+                    Drinks poured
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
           {COLUMNS.map((col) => {
             const items = filtered.filter((o) => o.status === col.status);
@@ -266,15 +333,20 @@ export default function StaffBoard() {
                           : "border-[#3D322C] bg-[#1A1614]"
                       }`}
                     >
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-lg font-extrabold tracking-wider text-[#F59E0B]">
-                          {o.code}
-                        </span>
-                        <span className="ml-auto flex items-center gap-1 font-mono text-xs text-[#A89C94]">
+                      <div className="flex items-start gap-2">
+                        <p
+                          className="min-w-0 flex-1 break-words font-serif text-2xl font-extrabold leading-tight text-[#FAF6F3]"
+                          data-testid={`staff-ticket-name-${o.code}`}
+                        >
+                          {o.customer_name}
+                        </p>
+                        <span className="flex shrink-0 items-center gap-1 font-mono text-xs text-[#A89C94]">
                           <Timer className="size-3" /> {elapsed(o.created_at)}
                         </span>
                       </div>
-                      <p className="mt-1 text-sm text-[#D6CBC3]">{o.customer_name}</p>
+                      <p className="mt-0.5 font-mono text-xs tracking-widest text-[#F59E0B]">
+                        {o.code}
+                      </p>
                       {overdue && (
                         <p
                           className="mt-2 flex items-center gap-1.5 rounded-md bg-[#7F1D1D] px-2 py-1.5 text-xs font-bold text-[#FEE2E2]"
@@ -302,9 +374,9 @@ export default function StaffBoard() {
                         <div className="flex flex-wrap items-center gap-2">
                           {col.status === "pay_now" && (
                             <Button
-                              size="sm"
+                              size="default"
                               variant="outline"
-                              className={overdue ? "text-xs !border-[#EF4444] !text-[#FCA5A5]" : "text-xs"}
+                              className={overdue ? "text-sm font-bold !border-[#EF4444] !text-[#FCA5A5]" : "text-sm font-bold"}
                               disabled={rePing.isPending}
                               onClick={() => rePing.mutate(o.id)}
                               data-testid={`re-ping-button-${o.code}`}
@@ -314,11 +386,11 @@ export default function StaffBoard() {
                           )}
                           {col.next && (
                           <Button
-                            size="sm"
+                            size="lg"
                             className={
                               col.status === "received"
-                                ? "!bg-[#EF4444] text-xs hover:!bg-[#DC2626]"
-                                : "text-xs"
+                                ? "!bg-[#EF4444] text-base font-bold hover:!bg-[#DC2626]"
+                                : "text-base font-bold"
                             }
                             disabled={advance.isPending}
                             onClick={() => advance.mutate({ id: o.id, status: col.next as OrderStatus })}

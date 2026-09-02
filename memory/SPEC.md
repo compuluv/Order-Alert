@@ -31,6 +31,22 @@ Staff board tickets in the `pay_now` column show minutes since `updated_at`. Pas
 status to `pay_now`, which re-sends the SMS and moves `updated_at`. The guest's tracker watches
 `updated_at`, so a re-ping re-fires the loud flashing alarm even though the status didn't change.
 
+## Auto-cancel unpaid orders (platform cron)
+`.emergent/crons.yml` → `auto-cancel-unpaid`, every 15 minutes, POSTs
+`{{BASE_URL}}/api/cron/auto-cancel-unpaid`. The endpoint (routers/cron.py) requires
+`Authorization: Bearer $WEBHOOK_CRON_SECRET` (401 otherwise), de-dupes on `X-Webhook-Id`/`run_id`,
+acks 2xx immediately and backgrounds the work. It flips `pay_now` orders whose `updated_at` is older
+than `AUTO_CANCEL_MINUTES` (default 15, in backend/.env) to status `cancelled`.
+`cancelled` is excluded from the wait-estimate queue and from the daily sales report, disappears
+from the staff board columns, and the guest tracker shows a "this order was cancelled" banner.
+
+## Drinks first (bar runs ahead of the kitchen)
+`OrderLine.category` is captured at order time, so the backend knows which lines are drinks.
+`Order.drinks_done` (bool) + `PATCH /api/orders/{id}/drinks-done`. The staff board shows a blue
+**"Bar — pour these now"** panel above the columns listing every paid order (`preparing`/`ready`)
+that still has undelivered drink lines, with a "Drinks poured" button — so drinks go out while the
+food is still cooking.
+
 ## Counter TV size modes
 `/counter` has a size toggle (`normal | large | xl`, default `large`) persisted in
 `localStorage["cbg_tv_size"]`. It scales the serving name (48 / 72 / 128px measured) and drops the

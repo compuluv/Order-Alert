@@ -102,7 +102,15 @@ export default function OrderMenu() {
       if (found) return prev.map((l) => (l.key === key ? { ...l, qty: l.qty + 1 } : l));
       return [
         ...prev,
-        { key, item_id: item.id, name: item.name, price: item.price, qty: 1, option },
+        {
+          key,
+          item_id: item.id,
+          name: item.name,
+          price: item.price,
+          qty: 1,
+          option,
+          category: item.category,
+        },
       ];
     });
     toast.success(`${item.name} added`, { description: option ?? undefined });
@@ -126,12 +134,13 @@ export default function OrderMenu() {
         customer_name: name.trim(),
         phone: phone.trim() || null,
         notes: notes.trim() || null,
-        lines: cart.map(({ item_id, name: n, price, qty, option }) => ({
+        lines: cart.map(({ item_id, name: n, price, qty, option, category }) => ({
           item_id,
           name: n,
           price,
           qty,
           option,
+          category,
         })),
       }),
     onSuccess: (order) => {
