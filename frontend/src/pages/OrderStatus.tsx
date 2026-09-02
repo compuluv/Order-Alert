@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Check, Bell, BellOff, CookingPot, Receipt, Loader2, ArrowLeft } from "lucide-react";
+import { Check, Bell, BellOff, CookingPot, Receipt, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import SiteHeader from "@/components/SiteHeader";
 import PickupAlert from "@/components/PickupAlert";
@@ -49,8 +49,16 @@ export default function OrderStatus() {
   const { data: order, isError, isLoading } = useQuery({
     queryKey: ["order", orderId],
     queryFn: () => apiGet<Order>(`/orders/${orderId}`),
-    refetchInterval: 4000,
+    // Stop polling once the order is gone (e.g. staff cleared the board), so a
+    // stale tab doesn't hammer the API with 404s forever.
+    refetchInterval: (query) => (query.state.error ? false : 4000),
+    retry: false,
   });
+
+  // A vanished order must not keep the alarm ringing.
+  useEffect(() => {
+    if (isError) stopAlarm();
+  }, [isError]);
 
   useEffect(() => {
     askNotificationPermission();
@@ -125,14 +133,6 @@ export default function OrderStatus() {
       />
 
       <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
-        <Link
-          to="/"
-          className="mb-2 inline-flex items-center gap-2 rounded-xl border border-[#3D322C] bg-[#1A1614] px-5 py-3 font-sans text-lg font-bold text-[#F5EFEB] transition-colors duration-150 hover:border-[#F59E0B] hover:text-[#F59E0B]"
-          data-testid="status-back-link"
-        >
-          <ArrowLeft className="size-6" /> Back
-        </Link>
-
         <h1 className="mt-4 font-serif text-3xl font-bold tracking-tight text-[#FAF6F3] sm:text-4xl">
           Order tracker
         </h1>
@@ -228,7 +228,7 @@ export default function OrderStatus() {
           </div>
         )}
 
-        {order && (
+        {order && !isError && (
           <div className="mt-6 grid gap-6 lg:grid-cols-[1.3fr_1fr]">
             <div className="animate-rise rounded-2xl border border-[#3D322C] bg-[#1A1614] p-5 sm:p-6">
               <div className="flex flex-wrap items-center gap-3">

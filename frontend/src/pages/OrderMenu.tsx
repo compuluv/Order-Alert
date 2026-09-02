@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ShoppingBag, Plus, Minus, Trash2, Flame, Loader2, ArrowLeft, Martini, UtensilsCrossed } from "lucide-react";
+import { ShoppingBag, Plus, Minus, Trash2, Flame, Loader2, ArrowLeft, Martini, UtensilsCrossed, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import SiteHeader from "@/components/SiteHeader";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -479,7 +479,7 @@ export default function OrderMenu() {
               Nothing to pay now — pay when you collect.
             </p>
             <Button
-              className="w-full"
+              className="h-16 w-full !bg-[#F97316] text-lg font-extrabold tracking-wide text-white shadow-lg shadow-orange-900/40 transition-transform duration-150 hover:!bg-[#FB8C3A] hover:scale-[1.02] active:scale-[0.99] disabled:!bg-[#3D322C] disabled:text-[#8B8078] disabled:shadow-none"
               size="lg"
               disabled={cart.length === 0 || placeOrder.isPending || nameMissing}
               onClick={() => {
@@ -491,10 +491,12 @@ export default function OrderMenu() {
             >
               {placeOrder.isPending ? (
                 <>
-                  <Loader2 className="size-4 animate-spin" /> Sending…
+                  <Loader2 className="size-5 animate-spin" /> Sending…
                 </>
               ) : (
-                "Send to kitchen"
+                <>
+                  Send to kitchen <ArrowRight className="size-5" />
+                </>
               )}
             </Button>
           </div>

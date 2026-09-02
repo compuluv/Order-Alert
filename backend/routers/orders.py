@@ -7,6 +7,7 @@ import qrcode
 import qrcode.image.svg
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
 from fastapi.responses import Response
+from pydantic import BaseModel
 
 from lib.db import db
 from lib.sms import pay_message, ready_message, send_sms, sms_configured
@@ -85,6 +86,19 @@ async def update_status(order_id: str, payload: StatusUpdate, background: Backgr
             ready_message(order.code, order.customer_name, order.total),
         )
     return order
+
+
+class ClearOrdersRequest(BaseModel):
+    confirm: str
+
+
+@router.post("/orders/clear-practice")
+async def clear_practice_orders(payload: ClearOrdersRequest):
+    """Wipes every order — for clearing practice/test tickets before opening."""
+    if payload.confirm != "CLEAR":
+        raise HTTPException(status_code=400, detail='confirm must be the string "CLEAR"')
+    result = await db.orders.delete_many({})
+    return {"deleted": result.deleted_count}
 
 
 @router.patch("/orders/{order_id}/drinks-done", response_model=Order)

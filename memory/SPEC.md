@@ -17,6 +17,11 @@ picker and Print button. The day is a **local calendar day** anchored server-sid
 date math. Returns order_count, revenue, items_sold, average_order, collected vs outstanding,
 `top_items` (best sellers, top 8), `by_category`, and `by_hour` buckets.
 
+## Clear practice orders
+`POST /api/orders/clear-practice {confirm: "CLEAR"}` (400 without the exact confirm string) deletes
+**every** order — for wiping practice tickets before service. Surfaced as a red "Clear orders"
+button on the staff board that opens a confirmation dialog warning that sales figures reset too.
+
 ## Sold-out toggle
 `MenuItem.sold_out` (bool, default false) + `PATCH /api/menu/{item_id}/sold-out {sold_out}`.
 Kitchen page `/staff/menu` ("Menu" button on the board) lists every dish grouped by category with a

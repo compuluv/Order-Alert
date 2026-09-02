@@ -1,12 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, BellOff, QrCode, Search, Timer, Loader2, Lock, Tv, MessageSquare, BarChart3, ClipboardList, AlertTriangle, BellRing, Martini } from "lucide-react";
+import { Bell, BellOff, QrCode, Search, Timer, Loader2, Lock, Tv, MessageSquare, BarChart3, ClipboardList, AlertTriangle, BellRing, Martini, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import SiteHeader from "@/components/SiteHeader";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { apiGet, apiPatch } from "@/lib/api";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { apiGet, apiPatch, apiPost } from "@/lib/api";
 import {
   STATUS_LABEL,
   STAFF_PIN_KEY,
@@ -64,6 +71,7 @@ export default function StaffBoard() {
   const qc = useQueryClient();
   const [sound, setSound] = useState(true);
   const [q, setQ] = useState("");
+  const [clearOpen, setClearOpen] = useState(false);
   const knownIds = useRef<Set<string> | null>(null);
 
   const { data: orders, isError, isLoading } = useQuery({
@@ -131,6 +139,18 @@ export default function StaffBoard() {
     onError: () => toast.error("Could not update the bar ticket."),
   });
 
+  const clearPractice = useMutation({
+    mutationFn: () => apiPost<{ deleted: number }>("/orders/clear-practice", { confirm: "CLEAR" }),
+    onSuccess: (res) => {
+      qc.invalidateQueries({ queryKey: ["orders"] });
+      setClearOpen(false);
+      toast.success(`Cleared ${res.deleted} practice order${res.deleted === 1 ? "" : "s"}`, {
+        description: "The board is empty and ready for service.",
+      });
+    },
+    onError: () => toast.error("Could not clear the orders."),
+  });
+
   const filtered = (orders ?? []).filter((o) => {
     const term = q.trim().toLowerCase();
     if (!term) return true;
@@ -186,6 +206,15 @@ export default function StaffBoard() {
             >
               <QrCode className="size-4" /> Order QR
             </Link>
+            <Button
+              variant="outline"
+              size="sm"
+              className="!border-[#EF4444] !text-[#FCA5A5]"
+              onClick={() => setClearOpen(true)}
+              data-testid="clear-practice-open-button"
+            >
+              <Trash2 className="size-4" /> Clear orders
+            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -411,6 +440,44 @@ export default function StaffBoard() {
           })}
         </div>
       </div>
+
+      <Dialog open={clearOpen} onOpenChange={setClearOpen}>
+        <DialogContent data-testid="clear-practice-dialog">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-xl">Clear all orders?</DialogTitle>
+            <DialogDescription>
+              This permanently deletes <strong>every</strong> order on the board — use it to wipe
+              practice tickets before opening. Today&apos;s sales figures will reset to zero too.
+              This can&apos;t be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setClearOpen(false)}
+              data-testid="clear-practice-cancel-button"
+            >
+              Keep them
+            </Button>
+            <Button
+              className="!bg-[#EF4444] font-bold hover:!bg-[#DC2626]"
+              disabled={clearPractice.isPending}
+              onClick={() => clearPractice.mutate()}
+              data-testid="clear-practice-confirm-button"
+            >
+              {clearPractice.isPending ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" /> Clearing…
+                </>
+              ) : (
+                <>
+                  <Trash2 className="size-4" /> Yes, clear everything
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
