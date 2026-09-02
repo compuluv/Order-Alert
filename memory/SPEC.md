@@ -18,10 +18,11 @@ date math. Returns order_count, revenue, items_sold, average_order, collected vs
 `top_items` (best sellers, top 8), `by_category`, and `by_hour` buckets.
 
 ## Counter TV display — `/counter` (ungated, meant to be left running on a TV)
-Polls every 4s. Big **NOW READY** grid of order codes + guest names (stays up until staff mark the
-order collected/served), with a smaller **Still cooking** column showing received/preparing tickets
-and elapsed time. Newly-ready codes flash via the `flashcard` keyframe for ~12s, then settle to
-solid green. Linked from the staff board ("Counter TV", opens in a new tab).
+Polls every 4s. Big **NOW SERVING** grid — the guest's **name in large type** with the order code
+underneath in small mono (staff call names out, so the name is the primary element) — plus a red
+**Come pay now** list and a smaller **Still cooking** column with elapsed time. Ready cards stay up
+until staff mark the order collected/served. Newly-ready codes flash via the `flashcard` keyframe
+for ~12s, then settle to solid green. Linked from the staff board ("Counter TV", new tab).
 
 ## SMS order-ready texts (`backend/lib/sms.py`)
 When staff advance a ticket to `ready`, a FastAPI `BackgroundTasks` job texts the guest:

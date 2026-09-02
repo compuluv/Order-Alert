@@ -63,10 +63,10 @@ export default function CounterDisplay() {
       </header>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[2fr_1fr]">
-        {/* NOW READY */}
+        {/* NOW SERVING */}
         <section data-testid="counter-ready-section">
           <h2 className="flex items-center gap-3 font-serif text-3xl font-bold text-[#10B981] lg:text-4xl">
-            <BellRing className="size-8 lg:size-10" /> NOW READY
+            <BellRing className="size-8 lg:size-10" /> NOW SERVING
           </h2>
           {ready.length === 0 ? (
             <p
@@ -89,11 +89,17 @@ export default function CounterDisplay() {
                         : "border-[#10B981] bg-[#10B981]"
                     }`}
                   >
-                    <p className="font-mono text-4xl font-extrabold tracking-wider text-[#022C22] lg:text-6xl">
-                      {o.code}
-                    </p>
-                    <p className="mt-2 truncate font-serif text-lg font-semibold text-[#064E3B] lg:text-2xl">
+                    <p
+                      className="break-words font-serif text-3xl font-extrabold leading-tight text-[#022C22] lg:text-5xl"
+                      data-testid={`counter-ready-name-${o.code}`}
+                    >
                       {o.customer_name}
+                    </p>
+                    <p
+                      className="mt-2 font-mono text-base font-bold tracking-widest text-[#064E3B] lg:text-xl"
+                      data-testid={`counter-ready-code-${o.code}`}
+                    >
+                      {o.code}
                     </p>
                   </li>
                 );
@@ -122,12 +128,10 @@ export default function CounterDisplay() {
                   data-testid={`counter-pay-${o.code}`}
                   className="flex items-center gap-3 rounded-xl border-2 border-[#EF4444] bg-[#2b1211] px-4 py-3"
                 >
-                  <span className="font-mono text-xl font-bold text-[#FCA5A5] lg:text-2xl">
-                    {o.code}
-                  </span>
-                  <span className="min-w-0 flex-1 truncate font-sans text-base text-[#FECACA]">
+                  <span className="min-w-0 flex-1 truncate font-serif text-xl font-bold text-[#FECACA] lg:text-2xl">
                     {o.customer_name}
                   </span>
+                  <span className="font-mono text-sm text-[#FCA5A5]">{o.code}</span>
                   <span className="font-mono text-sm font-bold text-[#FAFFFE]">
                     {money(o.total)}
                   </span>
@@ -157,12 +161,10 @@ export default function CounterDisplay() {
                   data-testid={`counter-cooking-${o.code}`}
                   className="flex items-center gap-3 rounded-xl border border-[#3D322C] bg-[#1A1614] px-4 py-3"
                 >
-                  <span className="font-mono text-xl font-bold text-[#F59E0B] lg:text-2xl">
-                    {o.code}
-                  </span>
-                  <span className="min-w-0 flex-1 truncate font-sans text-base text-[#D6CBC3]">
+                  <span className="min-w-0 flex-1 truncate font-serif text-lg font-bold text-[#F5EFEB] lg:text-xl">
                     {o.customer_name}
                   </span>
+                  <span className="font-mono text-sm text-[#F59E0B]">{o.code}</span>
                   <span className="font-mono text-sm text-[#A89C94]">{elapsed(o.created_at)}</span>
                 </li>
               ))}
