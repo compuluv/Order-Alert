@@ -38,6 +38,21 @@ When staff advance a ticket to `ready`, a FastAPI `BackgroundTasks` job texts th
 `Appetizers, Entrees, Seafood, Sides, Drinks` — all cocktails/punches/blends live under a single
 **Drinks** heading (the old "Signatures" and "Island Blends" groups were merged).
 
+## Ordering flow — PAY FIRST, then we make it
+1. Landing "Start your order" → `/order` = **OrderChoice** page: two big cards, **Food** or **Drinks**.
+2. `/order/food` (Appetizers, Entrees, Seafood, Sides) or `/order/drinks` (Drinks). Both render
+   `OrderMenu.tsx`, which picks its mode from the pathname. An "Add drinks/food too" link switches
+   menus and the cart survives via `sessionStorage["cbg_cart"]`.
+3. Guest sends the order → status `received`.
+4. Staff board columns (4): **New — needs payment** → `PING guest to pay` → **Pinged — waiting on
+   payment** → `Paid — start cooking` → **In the kitchen** → `PING guest to collect` → **Ready —
+   waiting at counter** → `Collected`.
+5. Statuses: `received | pay_now | preparing | ready | served`.
+   The loud flashing alarm fires TWICE — on `pay_now` (red, "PLEASE COME PAY NOW") and on `ready`
+   (green, "YOUR ORDER IS READY"). `PickupAlert` takes a `variant: "pay" | "collect"`.
+   SMS is sent on both transitions (`pay_message` / `ready_message` in `lib/sms.py`).
+6. Counter TV `/counter` has three zones: NOW READY (big), **Come pay now** (red list), Still cooking.
+
 ## Flows
 1. Guest scans the "Scan to order" poster (or taps "Start your order") → `/order` — one menu, no
    table numbers.

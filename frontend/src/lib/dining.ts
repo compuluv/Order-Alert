@@ -31,7 +31,7 @@ export interface Order {
   updated_at: string;
 }
 
-export type OrderStatus = "received" | "preparing" | "ready" | "served";
+export type OrderStatus = "received" | "pay_now" | "preparing" | "ready" | "served";
 
 // Mirrors WaitEstimate / DailyReport in backend/models/dining.py
 export interface WaitEstimate {
@@ -74,17 +74,25 @@ export const BUSY_STYLE: Record<WaitEstimate["busy_level"], string> = {
   slammed: "border-[#EF4444] text-[#EF4444]",
 };
 
-export const STATUS_FLOW: OrderStatus[] = ["received", "preparing", "ready", "served"];
+export const STATUS_FLOW: OrderStatus[] = [
+  "received",
+  "pay_now",
+  "preparing",
+  "ready",
+  "served",
+];
 
 export const STATUS_LABEL: Record<OrderStatus, string> = {
   received: "Order Received",
+  pay_now: "Pay At Counter Now",
   preparing: "In The Kitchen",
-  ready: "Pay & Collect Now",
+  ready: "Ready — Collect Now",
   served: "Collected",
 };
 
 export const STATUS_COLOR: Record<OrderStatus, string> = {
   received: "bg-[#6366F1] text-white",
+  pay_now: "bg-[#EF4444] text-white",
   preparing: "bg-[#F59E0B] text-[#1E1303]",
   ready: "bg-[#10B981] text-[#022C22]",
   served: "bg-[#3D322C] text-[#D6CBC3]",

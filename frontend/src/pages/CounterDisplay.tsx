@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { CookingPot, BellRing } from "lucide-react";
+import { CookingPot, BellRing, CreditCard } from "lucide-react";
 import { apiGet } from "@/lib/api";
-import { elapsed, type Order } from "@/lib/dining";
+import { elapsed, money, type Order } from "@/lib/dining";
 
 /**
  * Big-screen display for the TV above the counter.
@@ -16,6 +16,7 @@ export default function CounterDisplay() {
   });
 
   const ready = (orders ?? []).filter((o) => o.status === "ready");
+  const payNow = (orders ?? []).filter((o) => o.status === "pay_now");
   const cooking = (orders ?? []).filter(
     (o) => o.status === "received" || o.status === "preparing",
   );
@@ -61,7 +62,7 @@ export default function CounterDisplay() {
         </p>
       </header>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[2.1fr_1fr]">
+      <div className="mt-8 grid gap-8 lg:grid-cols-[2fr_1fr]">
         {/* NOW READY */}
         <section data-testid="counter-ready-section">
           <h2 className="flex items-center gap-3 font-serif text-3xl font-bold text-[#10B981] lg:text-4xl">
@@ -97,6 +98,41 @@ export default function CounterDisplay() {
                   </li>
                 );
               })}
+            </ul>
+          )}
+        </section>
+
+        {/* COME PAY */}
+        <section data-testid="counter-pay-section">
+          <h2 className="flex items-center gap-2 font-serif text-xl font-bold text-[#EF4444] lg:text-2xl">
+            <CreditCard className="size-6" /> Come pay now
+          </h2>
+          {payNow.length === 0 ? (
+            <p
+              className="mt-5 rounded-xl border border-[#2E2622] p-6 text-center text-base text-[#6b615a]"
+              data-testid="counter-pay-empty"
+            >
+              Nobody waiting to pay
+            </p>
+          ) : (
+            <ul className="mt-5 space-y-2.5">
+              {payNow.map((o) => (
+                <li
+                  key={o.id}
+                  data-testid={`counter-pay-${o.code}`}
+                  className="flex items-center gap-3 rounded-xl border-2 border-[#EF4444] bg-[#2b1211] px-4 py-3"
+                >
+                  <span className="font-mono text-xl font-bold text-[#FCA5A5] lg:text-2xl">
+                    {o.code}
+                  </span>
+                  <span className="min-w-0 flex-1 truncate font-sans text-base text-[#FECACA]">
+                    {o.customer_name}
+                  </span>
+                  <span className="font-mono text-sm font-bold text-[#FAFFFE]">
+                    {money(o.total)}
+                  </span>
+                </li>
+              ))}
             </ul>
           )}
         </section>

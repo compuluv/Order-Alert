@@ -9,7 +9,7 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
 from fastapi.responses import Response
 
 from lib.db import db
-from lib.sms import ready_message, send_sms, sms_configured
+from lib.sms import pay_message, ready_message, send_sms, sms_configured
 from models.dining import ORDER_STATUSES, Order, OrderCreate, StatusUpdate
 
 router = APIRouter()
@@ -71,8 +71,14 @@ async def update_status(order_id: str, payload: StatusUpdate, background: Backgr
     doc = await db.orders.find_one({"id": order_id})
     order = Order(**_aware(doc or {}))
 
-    # Text the guest when it's ready, so they're alerted even with the page closed.
-    if payload.status == "ready":
+    # Text the guest when we need payment, and again when it's ready to collect.
+    if payload.status == "pay_now":
+        background.add_task(
+            send_sms,
+            order.phone,
+            pay_message(order.code, order.customer_name, order.total),
+        )
+    elif payload.status == "ready":
         background.add_task(
             send_sms,
             order.phone,

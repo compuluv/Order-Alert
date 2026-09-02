@@ -21,16 +21,22 @@ import {
 } from "@/lib/dining";
 
 const STEPS: { status: OrderStatus; label: string; note: string }[] = [
-  { status: "received", label: "Order received", note: "The kitchen has your ticket" },
-  { status: "preparing", label: "On the grill", note: "Your food is being cooked fresh" },
+  { status: "received", label: "Order received", note: "Sent to the counter" },
+  {
+    status: "pay_now",
+    label: "Pay at the counter",
+    note: "We'll alarm your phone — pay first, then we start making it",
+  },
+  { status: "preparing", label: "Being made", note: "Paid — your order is now being prepared" },
   {
     status: "ready",
-    label: "Come pay & collect",
-    note: "We'll sound a loud alarm on this screen — then head to the counter",
+    label: "Ready — collect it",
+    note: "We'll alarm your phone again, then come grab it",
   },
 ];
 
-const stepIndex = (s: OrderStatus) => (s === "served" ? 2 : STEPS.findIndex((x) => x.status === s));
+const stepIndex = (s: OrderStatus) =>
+  s === "served" ? STEPS.length - 1 : STEPS.findIndex((x) => x.status === s);
 
 export default function OrderStatus() {
   const { orderId } = useParams<{ orderId: string }>();
@@ -55,17 +61,29 @@ export default function OrderStatus() {
     const changed = wasKnown && lastStatus.current !== order.status;
     lastStatus.current = order.status;
 
-    if (order.status === "ready" && (changed || !wasKnown)) {
+    const alarmStatus = order.status === "ready" || order.status === "pay_now";
+    if (alarmStatus && (changed || !wasKnown)) {
       setAlertOpen(true);
       if (sound) startAlarm();
-      notify("Your order is ready!", `Order ${order.code} — come pay & collect at the counter.`);
-      toast.success("Ready — come pay & collect at the counter", {
-        description: `Order ${order.code} · ${money(order.total)} due`,
-        duration: 20000,
-      });
+      if (order.status === "pay_now") {
+        notify(
+          "Please come pay now",
+          `Order ${order.code} — pay at the counter so we can start making it.`,
+        );
+        toast.warning("Come pay at the counter now", {
+          description: `Order ${order.code} · ${money(order.total)} to pay`,
+          duration: 20000,
+        });
+      } else {
+        notify("Your order is ready!", `Order ${order.code} — come collect it at the counter.`);
+        toast.success("Ready — come collect at the counter", {
+          description: `Order ${order.code}`,
+          duration: 20000,
+        });
+      }
     } else if (changed) {
       toast.info(STATUS_LABEL[order.status]);
-      if (order.status !== "ready") stopAlarm();
+      if (!alarmStatus) stopAlarm();
     }
   }, [order, sound]);
 
@@ -127,21 +145,22 @@ export default function OrderStatus() {
           </p>
         )}
 
-        {order && order.status === "ready" && alertOpen && (
+        {order && (order.status === "ready" || order.status === "pay_now") && alertOpen && (
           <PickupAlert
             code={order.code}
             total={order.total}
+            variant={order.status === "pay_now" ? "pay" : "collect"}
             onDismiss={() => setAlertOpen(false)}
           />
         )}
 
-        {order && order.status !== "ready" && (
+        {order && order.status !== "ready" && order.status !== "pay_now" && (
           <div className="mt-6" data-testid="tracker-wait-banner">
             <WaitBanner compact />
           </div>
         )}
 
-        {order && order.status !== "ready" && !armed && (
+        {order && order.status !== "ready" && order.status !== "pay_now" && !armed && (
           <div
             className="mt-6 flex flex-wrap items-center gap-3 rounded-xl border border-[#F59E0B] bg-[#241E1A] p-4"
             data-testid="arm-alarm-prompt"
@@ -164,16 +183,26 @@ export default function OrderStatus() {
           </div>
         )}
 
-        {order && order.status === "ready" && !alertOpen && (
+        {order && (order.status === "ready" || order.status === "pay_now") && !alertOpen && (
           <div
-            className="mt-6 flex flex-wrap items-center gap-3 rounded-xl border-2 border-[#10B981] bg-[#0f2b22] p-4"
+            className={`mt-6 flex flex-wrap items-center gap-3 rounded-xl border-2 p-4 ${
+              order.status === "pay_now"
+                ? "border-[#EF4444] bg-[#2b1211]"
+                : "border-[#10B981] bg-[#0f2b22]"
+            }`}
             data-testid="ready-reminder-banner"
           >
-            <p className="min-w-0 flex-1 font-serif text-lg font-semibold text-[#A7F3D0]">
-              Ready — pay &amp; collect at the counter ({money(order.total)} due)
+            <p
+              className={`min-w-0 flex-1 font-serif text-lg font-semibold ${
+                order.status === "pay_now" ? "text-[#FECACA]" : "text-[#A7F3D0]"
+              }`}
+            >
+              {order.status === "pay_now"
+                ? `Pay at the counter now (${money(order.total)}) — we start making it once you've paid`
+                : "Ready — collect it at the counter"}
             </p>
             <Button onClick={() => setAlertOpen(true)} data-testid="show-pickup-alert-button">
-              Show my pickup screen
+              {order.status === "pay_now" ? "Show my pay screen" : "Show my pickup screen"}
             </Button>
           </div>
         )}

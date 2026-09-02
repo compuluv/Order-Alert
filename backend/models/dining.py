@@ -9,7 +9,7 @@ def _now() -> datetime:
     return datetime.now(timezone.utc)
 
 
-ORDER_STATUSES = ["received", "preparing", "ready", "served"]
+ORDER_STATUSES = ["received", "pay_now", "preparing", "ready", "served"]
 
 
 class MenuItem(BaseModel):

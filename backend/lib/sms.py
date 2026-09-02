@@ -73,5 +73,12 @@ def send_sms(to: str | None, body: str) -> dict:
 def ready_message(code: str, name: str, total: float) -> str:
     return (
         f"Central Bar & Grill: {name}, your order {code} is READY! "
-        f"Come to the counter to pay & collect (${total:.2f} due)."
+        f"Come to the counter to collect it."
+    )
+
+
+def pay_message(code: str, name: str, total: float) -> str:
+    return (
+        f"Central Bar & Grill: {name}, please come to the counter to PAY for order "
+        f"{code} (${total:.2f}). We'll start making it as soon as you've paid."
     )

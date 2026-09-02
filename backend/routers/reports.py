@@ -37,7 +37,9 @@ def _day_bounds(day: str) -> tuple[datetime, datetime]:
 @router.get("/wait-estimate", response_model=WaitEstimate)
 async def wait_estimate():
     """How long a NEW order would take, based on what's already in the kitchen."""
-    queue = await db.orders.count_documents({"status": {"$in": ["received", "preparing"]}})
+    queue = await db.orders.count_documents(
+        {"status": {"$in": ["received", "pay_now", "preparing"]}}
+    )
     minutes = BASE_MINUTES + MINUTES_PER_ORDER * math.ceil(queue / PARALLEL_TICKETS)
     minutes = min(minutes, MAX_MINUTES)
     # Round to the nearest 5 so it reads like a human estimate.

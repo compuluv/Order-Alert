@@ -17,10 +17,41 @@ import {
   type OrderStatus,
 } from "@/lib/dining";
 
-const COLUMNS: { status: OrderStatus; title: string; accent: string; next?: OrderStatus; cta?: string }[] = [
-  { status: "received", title: "New tickets", accent: "#6366F1", next: "preparing", cta: "Start cooking" },
-  { status: "preparing", title: "In the kitchen", accent: "#F59E0B", next: "ready", cta: "PING guest to collect" },
-  { status: "ready", title: "Pinged — waiting at counter", accent: "#10B981", next: "served", cta: "Paid & collected" },
+const COLUMNS: {
+  status: OrderStatus;
+  title: string;
+  accent: string;
+  next?: OrderStatus;
+  cta?: string;
+}[] = [
+  {
+    status: "received",
+    title: "New — needs payment",
+    accent: "#6366F1",
+    next: "pay_now",
+    cta: "PING guest to pay",
+  },
+  {
+    status: "pay_now",
+    title: "Pinged — waiting on payment",
+    accent: "#EF4444",
+    next: "preparing",
+    cta: "Paid — start cooking",
+  },
+  {
+    status: "preparing",
+    title: "In the kitchen",
+    accent: "#F59E0B",
+    next: "ready",
+    cta: "PING guest to collect",
+  },
+  {
+    status: "ready",
+    title: "Ready — waiting at counter",
+    accent: "#10B981",
+    next: "served",
+    cta: "Collected",
+  },
 ];
 
 export default function StaffBoard() {
@@ -173,7 +204,7 @@ export default function StaffBoard() {
           </p>
         )}
 
-        <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
           {COLUMNS.map((col) => {
             const items = filtered.filter((o) => o.status === col.status);
             return (
@@ -231,6 +262,11 @@ export default function StaffBoard() {
                         {col.next && (
                           <Button
                             size="sm"
+                            className={
+                              col.status === "received"
+                                ? "!bg-[#EF4444] text-xs hover:!bg-[#DC2626]"
+                                : "text-xs"
+                            }
                             disabled={advance.isPending}
                             onClick={() => advance.mutate({ id: o.id, status: col.next as OrderStatus })}
                             data-testid={`staff-advance-button-${o.code}`}

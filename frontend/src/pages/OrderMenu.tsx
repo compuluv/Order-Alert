@@ -1,10 +1,10 @@
-import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useMemo, useState, useEffect } from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ShoppingBag, Plus, Minus, Trash2, Flame, Loader2 } from "lucide-react";
+import { ShoppingBag, Plus, Minus, Trash2, Flame, Loader2, ArrowLeft, Martini, UtensilsCrossed } from "lucide-react";
 import { toast } from "sonner";
 import SiteHeader from "@/components/SiteHeader";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,13 +34,25 @@ interface CartLine extends OrderLine {
 
 const lineKey = (id: string, option: string | null) => `${id}::${option ?? ""}`;
 
+const CART_KEY = "cbg_cart";
+const DRINK_CATEGORIES = ["Drinks"];
+
 /** Single ordering surface — no tables. Everyone pays & collects at the counter. */
 export default function OrderMenu() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const isDrinks = pathname.startsWith("/order/drinks");
   const qc = useQueryClient();
 
   const [category, setCategory] = useState<string>("All");
-  const [cart, setCart] = useState<CartLine[]>([]);
+  const [cart, setCart] = useState<CartLine[]>(() => {
+    try {
+      const raw = sessionStorage.getItem(CART_KEY);
+      return raw ? (JSON.parse(raw) as CartLine[]) : [];
+    } catch {
+      return [];
+    }
+  });
   const [cartOpen, setCartOpen] = useState(false);
   const [customizing, setCustomizing] = useState<MenuItem | null>(null);
   const [name, setName] = useState("");
@@ -52,15 +64,34 @@ export default function OrderMenu() {
     queryFn: () => apiGet<MenuItem[]>("/menu"),
   });
 
+  // Switching between the food and drinks menus must clear the old filter,
+  // otherwise e.g. category="Drinks" filters every food item out.
+  useEffect(() => {
+    setCategory("All");
+  }, [isDrinks]);
+
+  // Keep the cart across a food <-> drinks switch.
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(CART_KEY, JSON.stringify(cart));
+    } catch {
+      /* storage unavailable */
+    }
+  }, [cart]);
+
   const categories = useMemo(() => {
     const seen: string[] = [];
-    (menu ?? []).forEach((m) => {
-      if (!seen.includes(m.category)) seen.push(m.category);
-    });
+    (menu ?? [])
+      .filter((m) => DRINK_CATEGORIES.includes(m.category) === isDrinks)
+      .forEach((m) => {
+        if (!seen.includes(m.category)) seen.push(m.category);
+      });
     return ["All", ...seen];
-  }, [menu]);
+  }, [menu, isDrinks]);
 
-  const visible = (menu ?? []).filter((m) => category === "All" || m.category === category);
+  const visible = (menu ?? [])
+    .filter((m) => DRINK_CATEGORIES.includes(m.category) === isDrinks)
+    .filter((m) => category === "All" || m.category === category);
   const total = cart.reduce((s, l) => s + l.price * l.qty, 0);
   const count = cart.reduce((s, l) => s + l.qty, 0);
 
@@ -106,6 +137,11 @@ export default function OrderMenu() {
     onSuccess: (order) => {
       qc.invalidateQueries({ queryKey: ["orders"] });
       setCart([]);
+      try {
+        sessionStorage.removeItem(CART_KEY);
+      } catch {
+        /* storage unavailable */
+      }
       setCartOpen(false);
       navigate(`/status/${order.id}`);
     },
@@ -123,16 +159,40 @@ export default function OrderMenu() {
       />
 
       <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
-        <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-[#EA580C]">
-          Order from your phone
+        <Link
+          to="/order"
+          className={buttonVariants({ variant: "ghost", size: "sm" })}
+          data-testid="menu-back-to-choice-link"
+        >
+          <ArrowLeft className="size-4" /> Food or drinks
+        </Link>
+
+        <p className="mt-4 font-mono text-[11px] uppercase tracking-[0.22em] text-[#EA580C]">
+          {isDrinks ? "From the bar" : "From the kitchen"}
         </p>
         <h1 className="mt-2 font-serif text-3xl font-bold tracking-tight text-[#FAF6F3] sm:text-4xl">
-          The Menu
+          {isDrinks ? "Drinks" : "Food"}
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-[#A89C94]">
-          Sit anywhere you like. When your food&apos;s up, this screen flashes and sounds a loud
-          alarm — then head to the counter to pay and collect.
+          Staff will ping you to pay at the counter first — then we make it, and ping you again when
+          it&apos;s ready.
         </p>
+
+        <Link
+          to={isDrinks ? "/order/food" : "/order/drinks"}
+          className={`${buttonVariants({ variant: "outline", size: "sm" })} mt-4`}
+          data-testid="switch-menu-link"
+        >
+          {isDrinks ? (
+            <>
+              <UtensilsCrossed className="size-4" /> Add food too
+            </>
+          ) : (
+            <>
+              <Martini className="size-4" /> Add drinks too
+            </>
+          )}
+        </Link>
 
         <div className="mt-5 max-w-2xl">
           <WaitBanner />

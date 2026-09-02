@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/sonner";
 import StaffGate from "@/components/StaffGate";
 import Home from "@/pages/Home";
 import OrderMenu from "@/pages/OrderMenu";
+import OrderChoice from "@/pages/OrderChoice";
 import OrderStatus from "@/pages/OrderStatus";
 import StaffBoard from "@/pages/StaffBoard";
 import StaffQr from "@/pages/StaffQr";
@@ -15,8 +16,10 @@ export default function App() {
     <>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/order" element={<OrderMenu />} />
-        {/* Legacy table/takeout links (already-printed QRs) now land on the single menu. */}
+        <Route path="/order" element={<OrderChoice />} />
+        <Route path="/order/food" element={<OrderMenu />} />
+        <Route path="/order/drinks" element={<OrderMenu />} />
+        {/* Legacy table/takeout links (already-printed QRs) now land on the order picker. */}
         <Route path="/table/:tableId" element={<Navigate to="/order" replace />} />
         <Route path="/takeout" element={<Navigate to="/order" replace />} />
         <Route path="/status/:orderId" element={<OrderStatus />} />
