@@ -237,16 +237,30 @@ export default function OrderMenu() {
             <article
               key={item.id}
               data-testid={`menu-item-card-${item.id}`}
-              className="group flex flex-col overflow-hidden rounded-xl border border-[#2E2622] bg-[#1A1614] transition-transform duration-200 ease-out hover:-translate-y-1 hover:border-[#3D322C] hover:shadow-xl hover:shadow-amber-950/20"
+              className={`group flex flex-col overflow-hidden rounded-xl border transition-transform duration-200 ease-out ${
+                item.sold_out
+                  ? "border-[#241E1A] bg-[#151211] opacity-60"
+                  : "border-[#2E2622] bg-[#1A1614] hover:-translate-y-1 hover:border-[#3D322C] hover:shadow-xl hover:shadow-amber-950/20"
+              }`}
             >
               {item.image_url && (
                 <div className="relative h-40 overflow-hidden">
                   <img
                     src={item.image_url}
                     alt={item.name}
-                    className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    className={`size-full object-cover transition-transform duration-300 ${
+                      item.sold_out ? "grayscale" : "group-hover:scale-105"
+                    }`}
                   />
-                  {item.signature && (
+                  {item.sold_out && (
+                    <span
+                      className="absolute inset-x-0 bottom-0 bg-[#0D0B0A]/85 py-2 text-center font-sans text-xs font-bold uppercase tracking-[0.2em] text-[#EF4444]"
+                      data-testid={`sold-out-ribbon-${item.id}`}
+                    >
+                      Sold out
+                    </span>
+                  )}
+                  {item.signature && !item.sold_out && (
                     <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-[#D97706] px-2.5 py-1 font-sans text-[10px] font-bold uppercase tracking-wider text-[#1A1005]">
                       <Flame className="size-3" /> Signature
                     </span>
@@ -255,9 +269,17 @@ export default function OrderMenu() {
               )}
               <div className="flex flex-1 flex-col p-4 sm:p-5">
                 <div className="flex items-start justify-between gap-3">
-                  <h3 className="font-serif text-lg font-semibold text-[#FAF6F3]">{item.name}</h3>
+                  <h3
+                    className={`font-serif text-lg font-semibold ${
+                      item.sold_out ? "text-[#8B8078] line-through" : "text-[#FAF6F3]"
+                    }`}
+                  >
+                    {item.name}
+                  </h3>
                   <span
-                    className="shrink-0 font-mono text-base font-bold text-[#F59E0B]"
+                    className={`shrink-0 font-mono text-base font-bold ${
+                      item.sold_out ? "text-[#8B8078]" : "text-[#F59E0B]"
+                    }`}
                     data-testid={`menu-item-price-${item.id}`}
                   >
                     {money(item.price)}
@@ -268,10 +290,18 @@ export default function OrderMenu() {
                 </p>
                 <Button
                   className="mt-4"
+                  variant={item.sold_out ? "secondary" : "default"}
+                  disabled={item.sold_out}
                   onClick={() => onAdd(item)}
                   data-testid={`add-to-cart-button-${item.id}`}
                 >
-                  <Plus className="size-4" /> Add to order
+                  {item.sold_out ? (
+                    "Sold out"
+                  ) : (
+                    <>
+                      <Plus className="size-4" /> Add to order
+                    </>
+                  )}
                 </Button>
               </div>
             </article>

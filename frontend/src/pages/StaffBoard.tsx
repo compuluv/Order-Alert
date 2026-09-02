@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, BellOff, QrCode, Search, Timer, Loader2, Lock, Tv, MessageSquare, BarChart3 } from "lucide-react";
+import { Bell, BellOff, QrCode, Search, Timer, Loader2, Lock, Tv, MessageSquare, BarChart3, ClipboardList, AlertTriangle, BellRing } from "lucide-react";
 import { toast } from "sonner";
 import SiteHeader from "@/components/SiteHeader";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -16,6 +16,11 @@ import {
   type Order,
   type OrderStatus,
 } from "@/lib/dining";
+
+const UNPAID_WARN_MINUTES = 4;
+
+const minutesSince = (iso: string) =>
+  Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60000));
 
 const COLUMNS: {
   status: OrderStatus;
@@ -97,6 +102,18 @@ export default function StaffBoard() {
     onError: () => toast.error("Could not update that ticket."),
   });
 
+  const rePing = useMutation({
+    mutationFn: (id: string) => apiPatch<Order>(`/orders/${id}/status`, { status: "pay_now" }),
+    onSuccess: (order) => {
+      qc.invalidateQueries({ queryKey: ["orders"] });
+      qc.invalidateQueries({ queryKey: ["order", order.id] });
+      toast.warning(`Pinged ${order.customer_name} again to pay`, {
+        description: `${order.code} · ${money(order.total)}`,
+      });
+    },
+    onError: () => toast.error("Could not re-ping that guest."),
+  });
+
   const filtered = (orders ?? []).filter((o) => {
     const term = q.trim().toLowerCase();
     if (!term) return true;
@@ -122,6 +139,13 @@ export default function StaffBoard() {
               {sound ? <Bell className="size-4" /> : <BellOff className="size-4" />}
               Alerts
             </Button>
+            <Link
+              to="/staff/menu"
+              className={buttonVariants({ variant: "secondary", size: "sm" })}
+              data-testid="staff-menu-link"
+            >
+              <ClipboardList className="size-4" /> Menu
+            </Link>
             <Link
               to="/staff/report"
               className={buttonVariants({ variant: "secondary", size: "sm" })}
@@ -229,11 +253,18 @@ export default function StaffBoard() {
                       Nothing here
                     </p>
                   )}
-                  {items.map((o) => (
+                  {items.map((o) => {
+                    const waitingMins = minutesSince(o.updated_at);
+                    const overdue = col.status === "pay_now" && waitingMins >= UNPAID_WARN_MINUTES;
+                    return (
                     <article
                       key={o.id}
                       data-testid={`staff-ticket-${o.code}`}
-                      className="animate-slidein rounded-xl border border-[#3D322C] bg-[#1A1614] p-4"
+                      className={`animate-slidein rounded-xl border p-4 ${
+                        overdue
+                          ? "border-[#EF4444] bg-[#2b1211] animate-chime"
+                          : "border-[#3D322C] bg-[#1A1614]"
+                      }`}
                     >
                       <div className="flex items-center gap-2">
                         <span className="font-mono text-lg font-extrabold tracking-wider text-[#F59E0B]">
@@ -244,6 +275,15 @@ export default function StaffBoard() {
                         </span>
                       </div>
                       <p className="mt-1 text-sm text-[#D6CBC3]">{o.customer_name}</p>
+                      {overdue && (
+                        <p
+                          className="mt-2 flex items-center gap-1.5 rounded-md bg-[#7F1D1D] px-2 py-1.5 text-xs font-bold text-[#FEE2E2]"
+                          data-testid={`unpaid-warning-${o.code}`}
+                        >
+                          <AlertTriangle className="size-3.5" />
+                          Pinged {waitingMins}m ago — still not paid
+                        </p>
+                      )}
                       <ul className="mt-3 space-y-1">
                         {o.lines.map((l, i) => (
                           <li key={`${l.item_id}-${i}`} className="text-sm text-[#D6CBC3]">
@@ -257,9 +297,22 @@ export default function StaffBoard() {
                           {o.notes}
                         </p>
                       )}
-                      <div className="mt-3 flex items-center justify-between">
+                      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                         <span className="font-mono text-sm text-[#B5A9A1]">{money(o.total)}</span>
-                        {col.next && (
+                        <div className="flex flex-wrap items-center gap-2">
+                          {col.status === "pay_now" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className={overdue ? "text-xs !border-[#EF4444] !text-[#FCA5A5]" : "text-xs"}
+                              disabled={rePing.isPending}
+                              onClick={() => rePing.mutate(o.id)}
+                              data-testid={`re-ping-button-${o.code}`}
+                            >
+                              <BellRing className="size-3.5" /> Ping again
+                            </Button>
+                          )}
+                          {col.next && (
                           <Button
                             size="sm"
                             className={
@@ -274,9 +327,11 @@ export default function StaffBoard() {
                             {col.cta}
                           </Button>
                         )}
+                        </div>
                       </div>
                     </article>
-                  ))}
+                    );
+                  })}
                 </div>
               </section>
             );

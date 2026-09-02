@@ -9,6 +9,7 @@ import StaffBoard from "@/pages/StaffBoard";
 import StaffQr from "@/pages/StaffQr";
 import CounterDisplay from "@/pages/CounterDisplay";
 import StaffReport from "@/pages/StaffReport";
+import StaffMenu from "@/pages/StaffMenu";
 
 // One <Route> per page in src/pages; BrowserRouter already wraps this in main.tsx.
 export default function App() {
@@ -47,6 +48,14 @@ export default function App() {
           element={
             <StaffGate>
               <StaffReport />
+            </StaffGate>
+          }
+        />
+        <Route
+          path="/staff/menu"
+          element={
+            <StaffGate>
+              <StaffMenu />
             </StaffGate>
           }
         />

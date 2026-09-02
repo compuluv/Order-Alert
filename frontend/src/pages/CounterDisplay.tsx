@@ -1,14 +1,47 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { CookingPot, BellRing, CreditCard } from "lucide-react";
+import { CookingPot, BellRing, CreditCard, Maximize2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { apiGet } from "@/lib/api";
 import { elapsed, money, type Order } from "@/lib/dining";
+
+const SIZE_KEY = "cbg_tv_size";
+type TvSize = "normal" | "large" | "xl";
+const SIZE_ORDER: TvSize[] = ["normal", "large", "xl"];
+
+// Name type scale per TV size — "xl" is for a screen read from across a loud room.
+const NAME_CLASS: Record<TvSize, string> = {
+  normal: "text-3xl lg:text-5xl",
+  large: "text-4xl lg:text-7xl",
+  xl: "text-5xl sm:text-6xl lg:text-8xl xl:text-9xl",
+};
+const CODE_CLASS: Record<TvSize, string> = {
+  normal: "text-base lg:text-xl",
+  large: "text-lg lg:text-2xl",
+  xl: "text-xl lg:text-3xl",
+};
+const GRID_CLASS: Record<TvSize, string> = {
+  normal: "grid-cols-2 sm:grid-cols-3",
+  large: "grid-cols-1 sm:grid-cols-2",
+  xl: "grid-cols-1",
+};
 
 /**
  * Big-screen display for the TV above the counter.
  * Ready orders stay up until staff mark them collected; new arrivals flash in.
  */
 export default function CounterDisplay() {
+  const [size, setSize] = useState<TvSize>(() => {
+    const saved = localStorage.getItem(SIZE_KEY) as TvSize | null;
+    return saved && SIZE_ORDER.includes(saved) ? saved : "large";
+  });
+
+  const cycleSize = () => {
+    const next = SIZE_ORDER[(SIZE_ORDER.indexOf(size) + 1) % SIZE_ORDER.length];
+    setSize(next);
+    localStorage.setItem(SIZE_KEY, next);
+  };
+
   const { data: orders } = useQuery({
     queryKey: ["orders"],
     queryFn: () => apiGet<Order[]>("/orders"),
@@ -56,10 +89,24 @@ export default function CounterDisplay() {
             Order Pickup
           </h1>
         </div>
-        <p className="text-right font-sans text-lg text-[#A89C94] lg:text-2xl">
-          Pay &amp; collect
-          <span className="block font-serif font-bold text-[#F59E0B]">at the counter</span>
-        </p>
+        <div className="flex items-center gap-4">
+          <p className="text-right font-sans text-lg text-[#A89C94] lg:text-2xl">
+            Pay &amp; collect
+            <span className="block font-serif font-bold text-[#F59E0B]">at the counter</span>
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={cycleSize}
+            data-testid="tv-size-toggle-button"
+            title="Change how big the names are"
+          >
+            <Maximize2 className="size-4" />
+            <span className="uppercase" data-testid="tv-size-label">
+              {size}
+            </span>
+          </Button>
+        </div>
       </header>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[2fr_1fr]">
@@ -76,7 +123,7 @@ export default function CounterDisplay() {
               No orders waiting
             </p>
           ) : (
-            <ul className="mt-6 grid grid-cols-2 gap-5 sm:grid-cols-3">
+            <ul className={`mt-6 grid gap-5 ${GRID_CLASS[size]}`}>
               {ready.map((o) => {
                 const isNew = fresh.includes(o.code);
                 return (
@@ -90,13 +137,13 @@ export default function CounterDisplay() {
                     }`}
                   >
                     <p
-                      className="break-words font-serif text-3xl font-extrabold leading-tight text-[#022C22] lg:text-5xl"
+                      className={`break-words font-serif font-extrabold leading-[0.95] text-[#022C22] ${NAME_CLASS[size]}`}
                       data-testid={`counter-ready-name-${o.code}`}
                     >
                       {o.customer_name}
                     </p>
                     <p
-                      className="mt-2 font-mono text-base font-bold tracking-widest text-[#064E3B] lg:text-xl"
+                      className={`mt-2 font-mono font-bold tracking-widest text-[#064E3B] ${CODE_CLASS[size]}`}
                       data-testid={`counter-ready-code-${o.code}`}
                     >
                       {o.code}

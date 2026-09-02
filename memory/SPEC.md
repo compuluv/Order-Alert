@@ -17,6 +17,25 @@ picker and Print button. The day is a **local calendar day** anchored server-sid
 date math. Returns order_count, revenue, items_sold, average_order, collected vs outstanding,
 `top_items` (best sellers, top 8), `by_category`, and `by_hour` buckets.
 
+## Sold-out toggle
+`MenuItem.sold_out` (bool, default false) + `PATCH /api/menu/{item_id}/sold-out {sold_out}`.
+Kitchen page `/staff/menu` ("Menu" button on the board) lists every dish grouped by category with a
+search box, a sold-out count badge and a per-dish toggle. On the guest menu a sold-out dish is
+greyscaled at 0.6 opacity with a "SOLD OUT" ribbon, struck-through name and a disabled
+"Sold out" button. Guest menu polls, so it greys out within seconds.
+
+## Unpaid order timer / re-ping
+Staff board tickets in the `pay_now` column show minutes since `updated_at`. Past
+`UNPAID_WARN_MINUTES = 4` the ticket turns red, pulses (`animate-chime`) and shows
+"Pinged Xm ago — still not paid". Every `pay_now` ticket has a **Ping again** button that re-PATCHes
+status to `pay_now`, which re-sends the SMS and moves `updated_at`. The guest's tracker watches
+`updated_at`, so a re-ping re-fires the loud flashing alarm even though the status didn't change.
+
+## Counter TV size modes
+`/counter` has a size toggle (`normal | large | xl`, default `large`) persisted in
+`localStorage["cbg_tv_size"]`. It scales the serving name (48 / 72 / 128px measured) and drops the
+grid to fewer columns as it grows, so `xl` is readable from across a loud room.
+
 ## Counter TV display — `/counter` (ungated, meant to be left running on a TV)
 Polls every 4s. Big **NOW SERVING** grid — the guest's **name in large type** with the order code
 underneath in small mono (staff call names out, so the name is the primary element) — plus a red

@@ -8,6 +8,7 @@ export interface MenuItem {
   image_url: string | null;
   options: string[];
   signature: boolean;
+  sold_out: boolean;
 }
 
 export interface OrderLine {

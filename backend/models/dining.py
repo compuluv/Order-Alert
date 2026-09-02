@@ -21,6 +21,11 @@ class MenuItem(BaseModel):
     image_url: Optional[str] = None
     options: List[str] = []
     signature: bool = False
+    sold_out: bool = False
+
+
+class SoldOutUpdate(BaseModel):
+    sold_out: bool
 
 
 class OrderLine(BaseModel):

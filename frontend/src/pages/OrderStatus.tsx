@@ -44,6 +44,7 @@ export default function OrderStatus() {
   const [alertOpen, setAlertOpen] = useState(false);
   const [armed, setArmed] = useState(() => audioReady());
   const lastStatus = useRef<OrderStatus | null>(null);
+  const lastPingAt = useRef<string | null>(null);
 
   const { data: order, isError, isLoading } = useQuery({
     queryKey: ["order", orderId],
@@ -62,7 +63,12 @@ export default function OrderStatus() {
     lastStatus.current = order.status;
 
     const alarmStatus = order.status === "ready" || order.status === "pay_now";
-    if (alarmStatus && (changed || !wasKnown)) {
+    // Staff can re-ping without changing status — updated_at moves, so re-fire the alarm.
+    const rePinged =
+      alarmStatus && lastPingAt.current !== null && lastPingAt.current !== order.updated_at;
+    lastPingAt.current = order.updated_at;
+
+    if (alarmStatus && (changed || !wasKnown || rePinged)) {
       setAlertOpen(true);
       if (sound) startAlarm();
       if (order.status === "pay_now") {
