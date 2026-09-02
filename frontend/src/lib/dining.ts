@@ -30,6 +30,7 @@ export interface Order {
   total: number;
   status: OrderStatus;
   drinks_done: boolean;
+  archived: boolean;
   created_at: string;
   updated_at: string;
 }

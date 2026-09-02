@@ -46,7 +46,7 @@ async def create_order(payload: OrderCreate):
 
 @router.get("/orders", response_model=List[Order])
 async def list_orders():
-    docs = await db.orders.find({}).sort("created_at", -1).to_list(300)
+    docs = await db.orders.find({"archived": {"$ne": True}}).sort("created_at", -1).to_list(300)
     return [Order(**_aware(d)) for d in docs]
 
 

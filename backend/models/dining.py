@@ -54,6 +54,9 @@ class Order(BaseModel):
     total: float
     status: str = "received"
     drinks_done: bool = False
+    # Set by the 5am daily auto-reset: keeps the ticket for sales history but
+    # takes it off the live board.
+    archived: bool = False
     created_at: datetime = Field(default_factory=_now)
     updated_at: datetime = Field(default_factory=_now)
 

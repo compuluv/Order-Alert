@@ -6,3 +6,11 @@ crons:
     method: POST
     # Cron endpoints must ack 2xx immediately; enqueue/background the actual work.
     enabled: true
+
+  - name: daily-reset
+    description: "Archives yesterday's tickets at 5am local time so the board opens clean each morning"
+    cron: "5 * * * *"
+    endpoint: "{{BASE_URL}}/api/cron/daily-reset"
+    method: POST
+    # Runs hourly; the handler only acts when it is 5am in APP_TZ.
+    enabled: true
