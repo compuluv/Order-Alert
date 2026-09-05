@@ -49,7 +49,8 @@ export default function OrderMenu() {
     try {
       const raw = sessionStorage.getItem(CART_KEY);
       return raw ? (JSON.parse(raw) as CartLine[]) : [];
-    } catch {
+    } catch (error) {
+      console.warn("Could not restore saved cart:", error);
       return [];
     }
   });
@@ -74,8 +75,8 @@ export default function OrderMenu() {
   useEffect(() => {
     try {
       sessionStorage.setItem(CART_KEY, JSON.stringify(cart));
-    } catch {
-      /* storage unavailable */
+    } catch (error) {
+      console.warn("Could not save cart to session storage:", error);
     }
   }, [cart]);
 
@@ -148,8 +149,8 @@ export default function OrderMenu() {
       setCart([]);
       try {
         sessionStorage.removeItem(CART_KEY);
-      } catch {
-        /* storage unavailable */
+      } catch (error) {
+        console.warn("Could not clear saved cart:", error);
       }
       setCartOpen(false);
       navigate(`/status/${order.id}`);

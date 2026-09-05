@@ -37,8 +37,8 @@ export function unlockAudio() {
     osc.connect(g).connect(ctx.destination);
     osc.start();
     osc.stop(ctx.currentTime + 0.02);
-  } catch {
-    /* audio unavailable */
+  } catch (error) {
+    console.warn("Could not unlock audio for the alarm:", error);
   }
 }
 
@@ -70,8 +70,8 @@ function burst() {
 function vibrate() {
   try {
     navigator.vibrate?.([500, 200, 500, 200, 900]);
-  } catch {
-    /* unsupported */
+  } catch (error) {
+    console.warn("Vibration unsupported:", error);
   }
 }
 
@@ -96,8 +96,8 @@ export function stopAlarm() {
   }
   try {
     navigator.vibrate?.(0);
-  } catch {
-    /* unsupported */
+  } catch (error) {
+    console.warn("Could not stop vibration:", error);
   }
 }
 
@@ -110,7 +110,7 @@ export function notify(title: string, body: string) {
     if ("Notification" in window && Notification.permission === "granted") {
       new Notification(title, { body, requireInteraction: true } as NotificationOptions);
     }
-  } catch {
-    /* unavailable */
+  } catch (error) {
+    console.warn("Browser notification failed:", error);
   }
 }

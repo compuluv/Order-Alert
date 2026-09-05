@@ -160,3 +160,12 @@ they can reopen it from `ready-reminder-banner`.
 ## Order types
 Removed — there is a single order type (counter pickup). See the service model above.
 
+
+## Daily auto reset (added)
+- Cron `daily-reset` (`.emergent/crons.yml`, hourly) POSTs `/api/cron/daily-reset` with the
+  `WEBHOOK_CRON_SECRET` bearer token. The handler only acts when the local hour in `APP_TZ`
+  equals `DAILY_RESET_HOUR` (default 5 → 5am America/Toronto).
+- Action: any ticket created before local midnight today is cancelled if still open, then
+  flagged `archived: true`. Archived tickets are hidden from `GET /api/orders` (staff board,
+  counter TV) but remain in `/api/reports/daily` history.
+- `Order.archived: bool` (Pydantic) ↔ `Order.archived: boolean` (frontend/src/lib/dining.ts).

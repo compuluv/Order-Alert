@@ -1,0 +1,53 @@
+{
+  "iteration": 1,
+  "summary": "6 acceptance criteria exercised via 2 backend test files + 2 browser checks. All passed.",
+  "passed": 6,
+  "failed": 0,
+  "bugs": [],
+  "action_items": [],
+  "retest_needed": false,
+  "checks": [
+    {
+      "criterion": "Daily auto-reset archives pre-today tickets",
+      "name": "test_daily_reset_archives_and_cancels_open_ticket_and_report_still_counts (part 1)",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "POST /api/orders created fixture; backdated created_at before local midnight in Mongo; ran _daily_reset(force=True) in-process; GET /api/orders 200 no longer includes the ticket's id; Mongo doc shows archived=true."
+    },
+    {
+      "criterion": "Open yesterday tickets are cancelled, not left hanging",
+      "name": "test_daily_reset_archives_and_cancels_open_ticket_and_report_still_counts (part 2)",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "Order backdated with status=pay_now; after _daily_reset(force=True), Mongo doc status == 'cancelled' and archived == true (assertion passed)."
+    },
+    {
+      "criterion": "Archived tickets still count in sales history",
+      "name": "test_daily_reset_archives_and_cancels_open_ticket_and_report_still_counts (part 3)",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "GET /api/reports/daily?date=<yesterday> baseline vs after archiving a backdated 'served' order: order_count increased by >=1 and revenue increased by the order's total ($20.00); backend/backend/tests/test_tscheck_daily_reset_archive.py::test_... PASSED."
+    },
+    {
+      "criterion": "Cron endpoint auth",
+      "name": "test_cron_daily_reset_requires_auth / test_cron_daily_reset_accepts_valid_secret",
+      "lane": "backend",
+      "status": "passed",
+      "evidence": "POST /api/cron/daily-reset (no auth) -> 401. POST /api/cron/daily-reset with 'Authorization: Bearer <WEBHOOK_CRON_SECRET>' -> 200 {\"accepted\": true}. tests/test_tscheck_cron_auth.py 2 passed."
+    },
+    {
+      "criterion": "Customer order flow still works end to end",
+      "name": "customer-order-flow-e2e",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Ran against https://dine-scan-22.preview.emergentagent.com (APP_URL): Home -> Start order -> Food -> add item -> cart -> name 'tscheck-cust-<ts>' -> Send to kitchen -> tracker shows order-code, status-tracker, order-status-badge, and matching customer name. No response >=400 observed."
+    },
+    {
+      "criterion": "Staff board and ping alerts still work",
+      "name": "staff-board-ping-alerts",
+      "lane": "browser",
+      "status": "passed",
+      "evidence": "Localhost:3000, mobile viewport 390x844. Customer placed order 'tscheck-ping-<ts>'; staff tab unlocked with PIN 2006, ticket visible on board with matching name; PING advanced received->pay_now, customer tracker showed flashing overlay heading 'PLEASE COME PAY NOW', dismissed via 'On my way' button, overlay closed; staff advanced pay_now->preparing->ready, customer tracker showed flashing overlay heading 'YOUR ORDER IS READY', dismissed successfully."
+    }
+  ]
+}

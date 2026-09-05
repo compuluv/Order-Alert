@@ -1,5 +1,5 @@
 import io
-import random
+import secrets
 from datetime import datetime, timezone
 from typing import List
 
@@ -26,10 +26,10 @@ def _aware(o: dict) -> dict:
 
 async def _new_code() -> str:
     for _ in range(50):
-        code = f"CB-{random.randint(1000, 9999)}"
+        code = f"CB-{secrets.randbelow(9000) + 1000}"
         if not await db.orders.find_one({"code": code}):
             return code
-    return f"CB-{random.randint(10000, 99999)}"
+    return f"CB-{secrets.randbelow(90000) + 10000}"
 
 
 @router.post("/orders", response_model=Order)

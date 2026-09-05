@@ -141,8 +141,8 @@ export function playChime(kind: "ready" | "new" = "ready") {
       osc.start(start);
       osc.stop(start + 0.55);
     });
-  } catch {
-    /* audio unavailable — silent */
+  } catch (error) {
+    console.warn("Chime unavailable on this device:", error);
   }
 }
 
@@ -151,8 +151,8 @@ export function askNotificationPermission() {
     if ("Notification" in window && Notification.permission === "default") {
       void Notification.requestPermission();
     }
-  } catch {
-    /* ignore */
+  } catch (error) {
+    console.warn("Notification permission request failed:", error);
   }
 }
 
